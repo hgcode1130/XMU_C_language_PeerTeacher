@@ -1,0 +1,105 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.25"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "exercise",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "11-3::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-3-Debug-0cbc2785d125addbd8bd.json",
+					"name" : "11-3",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "11-4::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-4-Debug-0f492a2b76047d599b29.json",
+					"name" : "11-4",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "11-5::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-5-Debug-30ff93cf2f958d64946a.json",
+					"name" : "11-5",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "11-6::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-6-Debug-75294a026e69c14c0c72.json",
+					"name" : "11-6",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "11-7::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-7-Debug-c616ef70aec2c5876881.json",
+					"name" : "11-7",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "11-8::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-11-8-Debug-f44a5445f22be0756256.json",
+					"name" : "11-8",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/data/ZJU_C/repo/Primary/ch11/exercise/cmake-build-debug",
+		"source" : "D:/data/ZJU_C/repo/Primary/ch11/exercise"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

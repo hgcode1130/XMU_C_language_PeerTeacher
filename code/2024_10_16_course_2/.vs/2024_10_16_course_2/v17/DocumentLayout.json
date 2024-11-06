@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\function.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|solutionrelative:2024_10_16_course_2\\function.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\BinarySearch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|solutionrelative:2024_10_16_course_2\\BinarySearch.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\example.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{36FF0D9F-729A-4E0B-BAA5-328B7CE4F69D}|2024_10_16_course_2\\2024_10_16_course_2.vcxproj|solutionrelative:2024_10_16_course_2\\example.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "function.cpp",
+              "DocumentMoniker": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\function.cpp",
+              "RelativeDocumentMoniker": "2024_10_16_course_2\\function.cpp",
+              "ToolTip": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\function.cpp",
+              "RelativeToolTip": "2024_10_16_course_2\\function.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-16T11:51:13.473Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BinarySearch.cpp",
+              "DocumentMoniker": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\BinarySearch.cpp",
+              "RelativeDocumentMoniker": "2024_10_16_course_2\\BinarySearch.cpp",
+              "ToolTip": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\BinarySearch.cpp",
+              "RelativeToolTip": "2024_10_16_course_2\\BinarySearch.cpp",
+              "ViewState": "AQIAABcAAAAAAAAAAAAQwB4AAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-16T11:31:54.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "example.cpp",
+              "DocumentMoniker": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\example.cpp",
+              "RelativeDocumentMoniker": "2024_10_16_course_2\\example.cpp",
+              "ToolTip": "D:\\PeerTeacher\\code\\2024_10_16_course_2\\2024_10_16_course_2\\example.cpp",
+              "RelativeToolTip": "2024_10_16_course_2\\example.cpp",
+              "ViewState": "AQIAACcAAAAAAAAAAAAAAD8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-16T10:49:37.218Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
