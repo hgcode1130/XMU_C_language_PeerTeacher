@@ -62,7 +62,7 @@ int gcd(int a , int b)
 
 int main()
 {
-    // int i;
+    // int i;//
     // int x ,  y;
     // int t = y;
     // y = x;
