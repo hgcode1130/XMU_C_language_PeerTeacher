@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<string.h>
-#include<algorithm>//sort();
+#include<algorithm>
+//sort();
 //冒泡排序
 //每次都是相邻对吧 ，
 //
@@ -21,7 +22,6 @@
 //如何判断1-x中有多少个素数
 //素数筛
 //欧拉筛
-
 
 //如果是字符数组
 // int huiwen(char a[])
