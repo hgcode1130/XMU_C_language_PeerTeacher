@@ -44,7 +44,7 @@ void main()                                         //第 3 行
         { 
             for (j = 0; j < wlen; j++)              //第 29 行
                 words[i][j] = words[i][j] + (words[i][0] >= 'A' //第 30 行
-                                && &words[i][0] <= 'Z' ? 32 : 32);//第 30 行
+                                && words[i][0] <= 'Z' ? 32 : 32);//第 30 行
         } 
     } 
     for (i = 0; i < wcount; i++)                    //第 31 行
