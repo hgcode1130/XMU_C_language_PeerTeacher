@@ -25,7 +25,7 @@ Node *ex(Node *A, int n) {
   int count = 0;
 
   while (current) {
-    if (count++ == n) {
+    if (t(current->s) == n) {
       Node *new_node = (Node *)malloc(sizeof(Node));
       strcpy(new_node->s, current->s);
       new_node->next = NULL;
@@ -61,9 +61,10 @@ int main() {
     }
   }
 
-  printf("Enter n: ");
-  scanf("%d", &n);
-
+  //printf("Enter n: ");
+  // scanf("%d", &n);
+  // printf("%d\n", n);
+  n = 1;
   Node *B = ex(A, n);
 
   // 输出链表B

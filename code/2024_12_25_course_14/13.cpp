@@ -1,56 +1,60 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
+#define MAX 20
 
-typedef struct Guest {
-  char name[32];
-  int height;
+typedef struct {
+    char name[32];
+    int height;
 } Guest;
 
+// 比较函数，先按身高降序排列，若身高相等则按名字字典序升序
 int compare(const void *a, const void *b) {
-  Guest *g1 = (Guest *)a;
-  Guest *g2 = (Guest *)b;
-  if (g1->height != g2->height)
-    return g2->height - g1->height;  // 身高降序
-  return strcmp(g1->name, g2->name); // 名字字典序
-}
+    Guest *guestA = (Guest *)a;
+    Guest *guestB = (Guest *)b;
 
-void arrange(Guest guests[], int n) {
-  int rows = n / 2 + n % 2;
-  int center = rows / 2;
-  int idx = 0;
-
-  for (int i = 0; i < rows; i++) {
-    int size = (i == center) ? (n - rows + 1) : (rows / 2);
-    Guest row[size];
-    int left = size / 2 - 1, right = size / 2;
-
-    for (int j = 0; j < size; j++) {
-      if (j % 2 == 0)
-        row[right++] = guests[idx++];
-      else
-        row[left--] = guests[idx++];
+    if (guestA->height != guestB->height) {
+      return guestB->height - guestA->height; // 按身高降序
+    } else {
+        return strcmp(guestA->name, guestB->name) > 0; // 按名字字典序升序
     }
-
-    for (int j = 0; j < size; j++) {
-      printf("%s ", row[j].name);
-    }
-    printf("\n");
-  }
 }
 
 int main() {
-  int n;
-  scanf("%d", &n);
+    int N;
+    Guest guests[MAX];
 
-  Guest guests[n];
-  for (int i = 0; i < n; i++) {
-    scanf("%s %d", guests[i].name, &guests[i].height);
-  }
+    // 输入嘉宾数量
+    scanf("%d", &N);
 
-  qsort(guests, n, sizeof(Guest), compare);
-  arrange(guests, n);
+    // 输入嘉宾信息
+    for (int i = 0; i < N; i++) {
+        scanf("%s %d", guests[i].name, &guests[i].height);
+    }
 
-  return 0;
+    // 按规则排序
+    qsort(guests, N, sizeof(Guest), compare);
+
+    // 对称排列
+    Guest arrangement[MAX];
+    int left = (N - 1) / 2; // 左侧起点
+    int right = left + 1;   // 右侧起点
+
+    for (int i = 0; i < N; i++) {
+        if (i % 2 == 0) {
+            arrangement[left--] = guests[i]; // 奇数放在左边
+        } else {
+            arrangement[right++] = guests[i]; // 偶数放在右边
+        }
+    }
+
+    // 输出排列结果
+    printf("嘉宾的最终拍照顺序为:\n");
+    for (int i = 0; i < N; i++) {
+        printf("(%s, %d) ", arrangement[i].name, arrangement[i].height);
+    }
+    printf("\n");
+
+    return 0;
 }

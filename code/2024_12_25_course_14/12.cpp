@@ -1,35 +1,40 @@
 #include <stdio.h>
 #include <string.h>
-#include <cmath>
+#include <stdlib.h>
+#include <math.h>
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define swap(a, b) { int t = a; a = b; b = t; }
 int main() {
-  int n, k;
-  char input[101];
-  scanf("%d %d", &n, &k); // 读取n和k
-  scanf("%s", input);     // 读取输入序列
+    int n, k;
+    char sequence[101];
 
-  int sum = 0, num = 0, factor = 1;
-  for (int i = n - 1; i >= 0; i--) {
-    num += (input[i] - '0') * factor;
-    factor *= 10;
+    // 输入n和k
+    scanf("%d %d", &n, &k);
+    // 输入编码序列
+    scanf("%s", sequence);
 
-    if (factor == 10 * k || i == 0) { // 每k位进行一次折叠
-      sum += num;
-      num = 0;
-      factor = 1;
+    int length = strlen(sequence);
+    int result = 0; // 存储最终结果
+    bool f = true; // 用于翻转
+    // 遍历编码序列
+    for (int i = length - 1; i >= 0; i -= k , f^=1) {
+      int st = max(i - k + 1, 0);
+      int ed = i;
+      int temp = 0;
+      if (f) {
+        for (int i = st; i <= ed; i++) {
+          temp = temp * 10 + (sequence[i] - '0');
+        }
+      } else {
+        for (int i = ed; i >= st; i--) {
+          temp = temp * 10 + (sequence[i] - '0');
+        }
+      }
+      //printf("%d ", temp);
+      result += temp;
     }
-  }
 
-  // 输出最终的k位结果
-  int result[10], idx = 0;
-  do {
-    result[idx++] = sum % (int)pow(10, k);
-    sum /= (int)pow(10, k);
-  } while (sum > 0);
-
-  for (int i = idx - 1; i >= 0; i--) {
-    printf("%0*d", k, result[i]);
-  }
-  printf("\n");
-
-  return 0;
+    printf("%d\n", result % (int)pow(10 ,k)); // 输出结果
+    return 0;
 }

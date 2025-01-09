@@ -26,7 +26,7 @@ int main()                                  /*P 10 */
       printf("count is:%d\n", a[i].count);  /*P 26 */
     } /*P 27 */
   } /*P 28 */
-  4 if (!flag)                            /*P 29 */
+   if (!flag)                            /*P 29 */
       printf("there is no such item!\n"); /*P 30 */
   return;                                 /*P 31 */
 } /*P 32 */
