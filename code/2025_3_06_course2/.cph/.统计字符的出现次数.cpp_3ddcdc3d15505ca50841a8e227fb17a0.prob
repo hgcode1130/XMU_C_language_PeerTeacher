@@ -1,0 +1,1 @@
+{"name":"Local: 统计字符的出现次数","url":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_3_06_course2\\统计字符的出现次数.cpp","tests":[{"id":1741258681175,"input":"HelloWorld!\nXMU:(1+2)*9=27","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_3_06_course2\\统计字符的出现次数.cpp","group":"local","local":true}

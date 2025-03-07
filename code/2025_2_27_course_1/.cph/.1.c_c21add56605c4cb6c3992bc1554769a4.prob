@@ -1,0 +1,1 @@
+{"name":"Local: 1","url":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_2_27_course_1\\1.c","tests":[{"id":1740902709114,"input":"0b11,0b101,0x1,0x2,6,04,0b1001,0b1000,0x7,0xa","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_2_27_course_1\\1.c","group":"local","local":true}

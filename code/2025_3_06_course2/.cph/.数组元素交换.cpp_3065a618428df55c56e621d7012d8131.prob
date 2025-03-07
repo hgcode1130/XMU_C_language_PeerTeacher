@@ -1,0 +1,1 @@
+{"name":"Local: 数组元素交换","url":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_3_06_course2\\数组元素交换.cpp","tests":[{"id":1741257802834,"input":"1 2 3 4 5\n9 8 7 6 5","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\PeerTeacher\\XMU_C_language_PeerTeacher\\code\\2025_3_06_course2\\数组元素交换.cpp","group":"local","local":true}
