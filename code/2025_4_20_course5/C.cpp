@@ -93,10 +93,13 @@ string StrToInt(CharNode *head)
     }
 
     // 提取数字
-    while (head && isdigit(head->val))
+    while (head)
     {
-        result += head->val;
-        hasNumber = true;
+        if (isdigit(head->val))
+        {
+            result += head->val;
+            hasNumber = true;
+        }
         head = head->next;
     }
 
