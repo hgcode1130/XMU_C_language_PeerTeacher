@@ -1,0 +1,3287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++期末速成指南</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+
+            // 平滑滚动功能
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // 返回顶部按钮功能
+            window.onscroll = function () { scrollFunction() };
+
+            function scrollFunction() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    document.getElementById("backToTop").style.display = "block";
+                } else {
+                    document.getElementById("backToTop").style.display = "none";
+                }
+            }
+
+            // 移动设备上的目录折叠功能
+            const tocToggleBtn = document.getElementById('tocToggle');
+            if (tocToggleBtn) {
+                tocToggleBtn.addEventListener('click', function () {
+                    const tocContent = document.querySelector('.toc-content');
+                    if (tocContent.style.display === 'none' || tocContent.style.display === '') {
+                        tocContent.style.display = 'block';
+                        this.textContent = '隐藏目录 ▲';
+                    } else {
+                        tocContent.style.display = 'none';
+                        this.textContent = '显示目录 ▼';
+                    }
+                });
+            }
+
+            // 检查是否是移动设备
+            function isMobileDevice() {
+                return window.innerWidth <= 768;
+            }
+
+            // 初始化目录状态
+            function initTocState() {
+                const tocContent = document.querySelector('.toc-content');
+                const tocToggleBtn = document.getElementById('tocToggle');
+
+                if (isMobileDevice() && tocContent && tocToggleBtn) {
+                    tocContent.style.display = 'none';
+                    tocToggleBtn.style.display = 'block';
+                    tocToggleBtn.textContent = '显示目录 ▼';
+                }
+            }
+
+            // 初始化
+            initTocState();
+
+            // 窗口大小改变时重新检查
+            window.addEventListener('resize', initTocState);
+        });
+
+        function topFunction() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 暗黑模式切换
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            const btn = document.getElementById('darkModeToggle');
+            btn.textContent = isDark ? '🌞 浅色模式' : '🌙 深色模式';
+        }
+
+        // 页面加载时检查暗黑模式偏好
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeSaved = localStorage.getItem('darkMode') === 'true';
+            if (darkModeSaved) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').textContent = '🌞 浅色模式';
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 统一所有章节的字体样式和格式 */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        li,
+        td,
+        th,
+        blockquote,
+        code,
+        pre,
+        div,
+        ol,
+        ul {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            /* 统一字体大小 */
+        }
+
+        /* 统一标题样式 */
+        h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #2980b9;
+            margin-top: 40px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            scroll-margin-top: 70px;
+            font-weight: normal;
+        }
+
+        h3 {
+            font-size: 20px;
+            color: #3498db;
+            margin-top: 25px;
+            scroll-margin-top: 70px;
+            font-weight: normal;
+        }
+
+        /* 统一段落和列表样式 */
+        p,
+        li {
+            margin: 8px 0;
+            font-size: 16px;
+            /* 确保段落和列表项的字体大小一致 */
+        }
+
+        /* 统一代码块样式 */
+        pre,
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            /* 设置代码块的字体大小 */
+        }
+
+        /* 原h2和h3样式被合并到统一样式中 */
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        /* 暗黑模式样式 */
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode h1 {
+            color: #61dafb;
+            border-bottom-color: #61dafb;
+        }
+
+        body.dark-mode h2 {
+            color: #61dafb;
+            border-bottom-color: #444;
+        }
+
+        body.dark-mode h3 {
+            color: #61dafb;
+        }
+
+        body.dark-mode a {
+            color: #61dafb;
+        }
+
+        body.dark-mode pre {
+            background-color: #2d2d2d;
+            border-left-color: #61dafb;
+        }
+
+        body.dark-mode code {
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .question {
+            background-color: #253642;
+            border-left-color: #61dafb;
+        }
+
+        body.dark-mode .answer {
+            background-color: #253628;
+            border-left-color: #2ecc71;
+        }
+
+        body.dark-mode .note {
+            background-color: #253642;
+        }
+
+        body.dark-mode .warning {
+            background-color: #3d3223;
+        }
+
+        body.dark-mode .toc {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode th {
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode table,
+        body.dark-mode th,
+        body.dark-mode td {
+            border-color: #444;
+        }
+
+        a:hover {
+            color: #2c3e50;
+            text-decoration: underline;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 14px;
+            /* 使用固定字体大小，不使用em单位 */
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            color: #555;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .highlight {
+            background-color: #ffffcc;
+            padding: 2px;
+        }
+
+        .note {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-left: 20px;
+            margin-bottom: 30px;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 280px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-right: 320px;
+            padding-right: 20px;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            border-bottom: none;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            padding-left: 20px;
+            list-style-type: none;
+        }
+
+        .toc li {
+            margin: 8px 0;
+            transition: transform 0.2s;
+        }
+
+        .toc li:hover {
+            transform: translateX(5px);
+        }
+
+        .toc a {
+            display: block;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .toc a:hover {
+            background-color: #e8f4f8;
+            text-decoration: none;
+        }
+
+        .search-container {
+            margin-bottom: 15px;
+        }
+
+        #tocSearch {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .toc-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .toc-actions button {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .toc-actions button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* 添加右侧目录切换按钮 */
+        .toc-toggle {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            display: none;
+            z-index: 101;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 印刷专用样式 */
+        @media print {
+            .main-content {
+                margin-right: 0 !important;
+            }
+        }
+
+        .question {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .answer {
+            background-color: #e8f8e8;
+            padding: 15px;
+            border-left: 4px solid #27ae60;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #e74c3c;
+            text-decoration: line-through;
+        }
+
+        /* 新增样式 */
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        #backToTop:hover {
+            background-color: #2980b9;
+        }
+
+        .site-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 4px solid #3498db;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-title {
+            margin: 0;
+            font-size: 28px;
+            color: white;
+            border-bottom: none;
+        }
+
+        .controls button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+
+        .last-updated {
+            font-style: italic;
+            color: #777;
+            text-align: right;
+            margin: 10px 0 20px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #f1f1f1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #3498db;
+            width: 0%;
+        }
+
+        .tip-box {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .example-box {
+            background-color: #f8f9fa;
+            border: 1px dotted #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .code-header {
+            background-color: #eaeaea;
+            padding: 5px 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .code-header+pre {
+            margin-top: 0;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        /* 打印样式 */
+        @media print {
+
+            .site-header,
+            #backToTop,
+            .controls {
+                display: none !important;
+            }
+
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            a {
+                color: #000 !important;
+                text-decoration: underline;
+            }
+
+            .toc {
+                position: static !important;
+                page-break-after: always;
+            }
+
+            h2,
+            h3,
+            h3 {
+                page-break-after: avoid;
+            }
+
+            pre,
+            blockquote,
+            .question,
+            .answer,
+            .note,
+            .warning {
+                page-break-inside: avoid;
+            }
+
+            .code-header {
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+        }
+
+        /* 适配移动设备 */
+        /* 平板电脑响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .site-header {
+                padding: 10px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .controls {
+                margin-top: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .site-title {
+                font-size: 24px;
+            }
+
+            .toc {
+                position: static;
+                width: 100%;
+                margin-left: 0;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+
+            .main-content {
+                margin-right: 0;
+                padding-right: 0;
+            }
+
+            /* 改善代码块在平板上的显示 */
+            pre {
+                max-width: 100%;
+                overflow-x: auto;
+                font-size: 14px;
+            }
+
+            /* 让表格在平板上可以水平滚动 */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            /* 图片自适应 */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            /* 内容盒子更紧凑 */
+            .note,
+            .warning,
+            .example {
+                padding: 12px;
+            }
+
+            /* 导航按钮在平板上的布局 */
+            .chapter-navigation {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        /* 手机响应式设计 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                font-size: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+
+            .site-header {
+                padding: 8px;
+            }
+
+            .site-title {
+                font-size: 20px;
+            }
+
+            .controls button {
+                padding: 10px 8px;
+                width: calc(50% - 4px);
+                text-align: center;
+                font-size: 16px;
+                /* 更大的字体便于触摸 */
+                min-height: 44px;
+                /* 适合手指触摸的最小高度 */
+            }
+
+            /* 手机上的代码块字体稍小一些 */
+            code,
+            pre {
+                font-size: 13px;
+            }
+
+            /* 更紧凑的列表 */
+            ul,
+            ol {
+                padding-left: 20px;
+            }
+
+            /* 手机上的表格样式优化 */
+            th,
+            td {
+                padding: 8px;
+            }
+
+            /* 章节导航在手机上垂直排列 */
+            .chapter-navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .prev-chapter,
+            .next-chapter {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* 快速导航按钮优化 */
+            .quick-nav-buttons button {
+                min-width: calc(100% - 5px);
+                margin-bottom: 5px;
+            }
+        }
+
+        /* 章节导航 */
+        .chapter-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0 40px;
+            padding: 10px 0;
+            border-top: 1px dashed #ddd;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .chapter-navigation a {
+            padding: 8px 15px;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            transition: background-color 0.2s;
+        }
+
+        .chapter-navigation a:hover {
+            background-color: #e0e0e0;
+            text-decoration: none;
+        }
+
+        .prev-chapter::before {
+            content: '上一章：';
+            color: #777;
+            font-size: 14px;
+        }
+
+        .next-chapter::before {
+            content: '下一章：';
+            color: #777;
+            font-size: 14px;
+        }
+
+        body.dark-mode .chapter-navigation a {
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .chapter-navigation a:hover {
+            background-color: #3d3d3d;
+        }
+
+        /* 目录标题和控制按钮样式 */
+        .toc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .toc-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .toc-toggle-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            display: none;
+            /* 默认隐藏，在移动端显示 */
+        }
+
+        /* 移动设备上显示目录切换按钮 */
+        @media (max-width: 768px) {
+            .toc-toggle-btn {
+                display: block;
+            }
+        }
+
+        .toc-header h2 {
+            margin: 0;
+            padding: 0;
+        }
+
+        #tocFixToggle {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        #tocFixToggle:hover {
+            background-color: #e0e0e0;
+        }
+
+        #tocFixToggle.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        body.dark-mode #tocFixToggle {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode #tocFixToggle:hover {
+            background-color: #3d3d3d;
+        }
+
+        body.dark-mode #tocFixToggle.active {
+            background-color: #61dafb;
+            color: #1a1a1a;
+            border-color: #61dafb;
+        }
+
+        /* 固定目录样式 */
+        .toc-fixed {
+            position: absolute !important;
+            right: 20px !important;
+            top: auto !important;
+        }
+
+        /* 更美观的目录条目样式 */
+        .toc li a {
+            display: flex;
+            align-items: center;
+        }
+
+        .toc li a:before {
+            margin-right: 5px;
+        }
+
+        .toc nav {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* 美化搜索框 */
+        #tocSearch {
+            padding-left: 30px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath fill='%23999' d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 8px center;
+        }
+
+        /* 区分目录中的不同类型的项 */
+        .toc li a[href^="#构造"],
+        .toc li a[href^="#拷贝"],
+        .toc li a[href^="#析构"] {
+            color: #e67e22;
+        }
+
+        .toc li a[href^="#类"],
+        .toc li a[href^="#继承"],
+        .toc li a[href^="#多态"] {
+            color: #2980b9;
+        }
+
+        .toc li a[href^="#函数"],
+        .toc li a[href^="#运算符"] {
+            color: #16a085;
+        }
+
+        body.dark-mode .toc li a[href^="#构造"],
+        body.dark-mode .toc li a[href^="#拷贝"],
+        body.dark-mode .toc li a[href^="#析构"] {
+            color: #f39c12;
+        }
+
+        body.dark-mode .toc li a[href^="#类"],
+        body.dark-mode .toc li a[href^="#继承"],
+        body.dark-mode .toc li a[href^="#多态"] {
+            color: #3498db;
+        }
+
+        body.dark-mode .toc li a[href^="#函数"],
+        body.dark-mode .toc li a[href^="#运算符"] {
+            color: #1abc9c;
+        }
+
+        /* 快速导航样式 */
+        .quick-nav {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .quick-nav h3 {
+            font-size: 1em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #555;
+            text-align: center;
+        }
+
+        .quick-nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .quick-nav-buttons button {
+            flex: 1;
+            min-width: calc(50% - 5px);
+            padding: 8px 5px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-nav-buttons button:hover {
+            background: #e0e0e0;
+        }
+
+        body.dark-mode .quick-nav {
+            border-top-color: #444;
+        }
+
+        body.dark-mode .quick-nav h3 {
+            color: #bbb;
+        }
+
+        body.dark-mode .quick-nav-buttons button {
+            background: #2d2d2d;
+            border-color: #444;
+            color: #ddd;
+        }
+
+        body.dark-mode .quick-nav-buttons button:hover {
+            background: #3d3d3d;
+        }
+
+        .progress-tracker {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .progress-tracker h3 {
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #555;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            height: 12px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-study {
+            height: 100%;
+            background-color: #27ae60;
+            text-align: center;
+            line-height: 12px;
+            color: white;
+            font-size: 10px;
+            transition: width 0.5s;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .progress-stats button {
+            background: none;
+            border: none;
+            color: #3498db;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .progress-stats button:hover {
+            color: #2980b9;
+        }
+
+        body.dark-mode .progress-tracker {
+            border-top-color: #444;
+        }
+
+        body.dark-mode .progress-tracker h3,
+        body.dark-mode .progress-stats {
+            color: #bbb;
+        }
+
+        body.dark-mode .progress-bar-container {
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .progress-stats button {
+            color: #3498db;
+        }
+
+        body.dark-mode .progress-stats button:hover {
+            color: #2980b9;
+        }
+
+        /* 为章节添加完成复选框 */
+        .chapter-completion {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .chapter-title {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body> <!-- 进度条 -->
+    <div class="progress-container">
+        <div class="progress-bar" id="readingProgress"></div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <header class="site-header">
+        <div class="header-content">
+            <h1 class="site-title">C++期末速成指南</h1>
+            <div class="controls">
+                <button id="darkModeToggle" onclick="toggleDarkMode()">🌙 深色模式</button>
+                <button id="printButton" onclick="window.print()">🖨️ 打印</button>
+            </div>
+        </div>
+    </header>
+    <blockquote>
+        <p><a href="https://space.bilibili.com/361358232" target="_blank">我的 b 站主页</a></p>
+        <p>部分基础（如数据类型、运算符等）请结合<a
+                href="https://www.bilibili.com/video/BV1uNrzYMEDv?vd_source=b783b218a754d5ce9e2737a645914917"
+                target="_blank"> 《C语言期末必会
+                10 题 ——10 题搞定 C 语言》</a> 来补充复习</p>
+        <p>可以同时结合期末视频讲解食用<a
+                href="https://www.bilibili.com/video/BV1bzjuzvEUQ?vd_source=b783b218a754d5ce9e2737a645914917"
+                target="_blank">2020C++试题讲解</a></p>
+    </blockquote>
+
+    <div class="last-updated">
+        <p>最后更新: 2025年06月13日</p>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="toc">
+            <div class="toc-header">
+                <h2>目录</h2>
+                <div class="toc-controls">
+                    <button id="tocToggle" class="toc-toggle-btn">显示目录 ▼</button>
+                    <button id="tocFixToggle" onclick="toggleTocFixed()">📌</button>
+                </div>
+            </div>
+            <div class="toc-content">
+                <div class="search-container">
+                    <input type="text" id="tocSearch" placeholder="🔍 搜索内容..." onkeyup="searchTOC()">
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#this指针"><code>this</code> 指针</a></li>
+                        <li><a href="#初始化列表">初始化列表</a></li>
+                        <li><a href="#拷贝构造函数">拷贝构造函数</a></li>
+                        <li><a href="#深拷贝与浅拷贝">深拷贝与浅拷贝</a></li>
+                        <li><a href="#析构函数">析构函数</a></li>
+                        <li><a href="#引用成员和类的构造">引用成员和类的构造</a></li>
+                        <!-- <li><a href="#函数重载">函数重载</a></li> -->
+                        <li><a href="#类的继承">类的继承</a></li>
+                        <li><a href="#继承中的构造与析构顺序">继承中的构造与析构顺序</a></li>
+                        <li><a href="#类的多态">类的多态</a></li>
+                        <li><a href="#友元函数">友元函数</a></li>
+                        <li><a href="#运算符重载">运算符重载</a></li>
+                        <li><a href="#模板类">模板类</a></li>
+                        <li><a href="#流">流</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- <div class="quick-nav">
+                <h3>快速导航</h3>
+                <div class="quick-nav-buttons">
+                    <button onclick="scrollToSection('基础')">基础概念</button>
+                    <button onclick="scrollToSection('构造')">构造与继承</button>
+                    <button onclick="scrollToSection('多态')">多态与函数</button>
+                    <button onclick="scrollToSection('高级')">高级特性</button>
+                </div>
+            </div>
+            <div class="toc-actions">
+                <button id="expandAll">展开全部</button>
+                <button id="collapseAll">折叠全部</button>
+            </div> -->
+            <div class="progress-tracker">
+                <h3>学习进度</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-study" id="studyProgressBar">0%</div>
+                </div>
+                <div class="progress-stats">
+                    <span>已学习: <span id="completedTopics">0</span>/<span id="totalTopics">0</span></span>
+                    <button id="resetProgress">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function searchTOC() {
+                var input, filter, ul, li, a, i, txtValue;
+                input = document.getElementById("tocSearch");
+                filter = input.value.toUpperCase();
+                ul = document.querySelector(".toc nav ul");
+                li = ul.getElementsByTagName("li");
+
+                for (i = 0; i < li.length; i++) {
+                    a = li[i].getElementsByTagName("a")[0];
+                    txtValue = a.textContent || a.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        li[i].style.display = "";
+                    } else {
+                        li[i].style.display = "none";
+                    }
+                }
+            }
+        </script>
+
+        <!-- 学习进度追踪功能 -->
+        <script>
+            // 学习进度追踪功能
+            function initProgressTracker() {
+                const sections = document.querySelectorAll('.main-content h2');
+                const totalTopics = sections.length;
+                document.getElementById('totalTopics').textContent = totalTopics;
+
+                // 获取已保存的进度
+                const savedProgress = JSON.parse(localStorage.getItem('cpp_study_progress') || '{}');
+
+                // 为每个章节添加复选框
+                sections.forEach(function (section, index) {
+                    // 创建标题容器，添加复选框
+                    const titleContainer = document.createElement('div');
+                    titleContainer.className = 'chapter-title';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = 'chapter-' + index;
+                    checkbox.className = 'chapter-completion';
+                    checkbox.checked = savedProgress[section.id] === true;
+
+                    checkbox.addEventListener('change', function () {
+                        updateProgress(section.id, this.checked);
+                    });
+
+                    // 将标题的内容移到新容器中
+                    while (section.firstChild) {
+                        titleContainer.appendChild(section.firstChild);
+                    }
+
+                    // 添加复选框和容器到标题区域
+                    section.appendChild(checkbox);
+                    section.appendChild(titleContainer);
+                });
+
+                // 更新进度显示
+                updateProgressDisplay();
+
+                // 添加重置按钮功能
+                document.getElementById('resetProgress').addEventListener('click', function () {
+                    if (confirm('确定要重置所有学习进度吗？')) {
+                        localStorage.removeItem('cpp_study_progress');
+                        document.querySelectorAll('.chapter-completion').forEach(function (checkbox) {
+                            checkbox.checked = false;
+                        });
+                        updateProgressDisplay();
+                    }
+                });
+            }
+
+            // 更新单个章节的进度
+            function updateProgress(sectionId, completed) {
+                const savedProgress = JSON.parse(localStorage.getItem('cpp_study_progress') || '{}');
+                savedProgress[sectionId] = completed;
+                localStorage.setItem('cpp_study_progress', JSON.stringify(savedProgress));
+                updateProgressDisplay();
+            }
+
+            // 更新进度显示
+            function updateProgressDisplay() {
+                const savedProgress = JSON.parse(localStorage.getItem('cpp_study_progress') || '{}');
+                const sections = document.querySelectorAll('.main-content h2');
+
+                let completedCount = 0;
+                sections.forEach(function (section) {
+                    if (savedProgress[section.id]) {
+                        completedCount++;
+                    }
+                });
+
+                const percentage = sections.length > 0 ? Math.round((completedCount / sections.length) * 100) : 0;
+
+                document.getElementById('completedTopics').textContent = completedCount;
+                document.getElementById('studyProgressBar').style.width = percentage + '%';
+                document.getElementById('studyProgressBar').textContent = percentage + '%';
+            }
+
+            // 页面加载完成后执行
+            document.addEventListener('DOMContentLoaded', function () {
+                initProgressTracker(); // 初始化进度追踪器
+
+                // 为没有添加语言标签的代码块添加标签
+                document.querySelectorAll('pre code').forEach(function (block) {
+                    const parent = block.parentNode;
+                    if (!parent.previousElementSibling || !parent.previousElementSibling.classList.contains('code-header')) {
+                        const language = block.className.match(/language-(\w+)/);
+                        if (language) {
+                            const header = document.createElement('div');
+                            header.className = 'code-header';
+                            header.innerHTML = '<span>代码示例</span><span class="language-tag">' + language[1].toUpperCase() + '</span>';
+                            parent.parentNode.insertBefore(header, parent);
+                        }
+                    }
+                });
+
+                // 检查屏幕宽度，在小屏幕上设置切换按钮
+                checkScreenWidth();
+
+                // 添加高亮代码功能
+                if (typeof hljs !== 'undefined') {
+                    hljs.highlightAll();
+                }
+
+                // 章节导航处理
+                addChapterNavigation();
+                // 目录展开/折叠功能
+                document.getElementById('expandAll').addEventListener('click', function () {
+                    expandCollapseAll(true);
+                });
+
+                document.getElementById('collapseAll').addEventListener('click', function () {
+                    expandCollapseAll(false);
+                });
+
+                // 初始化进度跟踪器
+                initProgressTracker();
+            });
+            // 检查屏幕宽度
+            function checkScreenWidth() {
+                if (window.innerWidth <= 1200) {
+                    document.querySelector('.toc').style.display = 'none';
+                    document.getElementById('tocToggle').style.display = 'block';
+                    document.querySelector('.main-content').style.marginRight = '0';
+                } else {
+                    document.querySelector('.toc').style.display = 'block';
+                    document.getElementById('tocToggle').style.display = 'none';
+                    document.querySelector('.main-content').style.marginRight = '320px';
+                }
+
+                // 检查目录固定状态
+                checkTocFixed();
+            }
+
+            // 窗口大小改变时重新检查
+            window.addEventListener('resize', checkScreenWidth);
+
+            // 目录固定/浮动切换
+            function toggleTocFixed() {
+                const toc = document.getElementById('toc');
+                const button = document.getElementById('tocFixToggle');
+
+                if (toc.classList.contains('toc-fixed')) {
+                    toc.classList.remove('toc-fixed');
+                    button.classList.remove('active');
+                    localStorage.setItem('tocFixed', 'false');
+                } else {
+                    toc.classList.add('toc-fixed');
+                    button.classList.add('active');
+                    localStorage.setItem('tocFixed', 'true');
+                }
+            }
+
+            // 检查目录固定状态
+            function checkTocFixed() {
+                const tocFixed = localStorage.getItem('tocFixed') === 'true';
+                const toc = document.getElementById('toc');
+                const button = document.getElementById('tocFixToggle');
+
+                if (tocFixed && window.innerWidth > 1200) {
+                    toc.classList.add('toc-fixed');
+                    button.classList.add('active');
+                } else {
+                    toc.classList.remove('toc-fixed');
+                    button.classList.remove('active');
+                }
+            }
+
+            // 目录显示切换
+            function toggleTOC() {
+                const toc = document.querySelector('.toc');
+                const mainContent = document.querySelector('.main-content');
+
+                if (toc.style.display === 'none' || toc.style.display === '') {
+                    toc.style.display = 'block';
+                    if (window.innerWidth > 1200) {
+                        mainContent.style.marginRight = '320px';
+                    }
+                } else {
+                    toc.style.display = 'none';
+                    mainContent.style.marginRight = '0';
+                }
+            }
+            // 快速导航至指定部分
+            function scrollToSection(category) {
+                let targetHeading;
+                const headings = document.querySelectorAll('.main-content h2');
+
+                switch (category) {
+                    case '基础':
+                        targetHeading = document.querySelector('#初始化列表, #数据类型及转换, #C\\+\\+注释');
+                        break;
+                    case '构造':
+                        targetHeading = document.querySelector('#析构函数, #拷贝构造函数, #类的继承');
+                        break;
+                    case '多态':
+                        targetHeading = document.querySelector('#类的多态, #this指针, #友元函数');
+                        break;
+                    case '高级':
+                        targetHeading = document.querySelector('#运算符重载, #模板类');
+                        break;
+                    default:
+                        targetHeading = headings[0];
+                }
+
+                // 如果找不到精确匹配，选择一个近似的标题
+                if (!targetHeading) {
+                    for (let i = 0; i < headings.length; i++) {
+                        if (headings[i].textContent.indexOf(category) !== -1) {
+                            targetHeading = headings[i];
+                            break;
+                        }
+                    }
+
+                    // 仍然找不到匹配项时，使用默认标题
+                    if (!targetHeading) {
+                        targetHeading = headings[0];
+                    }
+                }
+
+                targetHeading.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+
+            // 添加章节导航
+            function addChapterNavigation() {
+                const headings = document.querySelectorAll('.main-content h2');
+                for (let index = 0; index < headings.length; index++) {
+                    const heading = headings[index];
+                    const nav = document.createElement('div');
+                    nav.className = 'chapter-navigation';
+
+                    // 添加上一章链接
+                    if (index > 0) {
+                        const prevHeading = headings[index - 1];
+                        const prevLink = document.createElement('a');
+                        prevLink.href = '#' + prevHeading.id;
+                        prevLink.className = 'prev-chapter';
+                        prevLink.innerHTML = '&laquo; ' + prevHeading.textContent;
+                        nav.appendChild(prevLink);
+                    }
+
+                    // 添加下一章链接
+                    if (index < headings.length - 1) {
+                        const nextHeading = headings[index + 1];
+                        const nextLink = document.createElement('a');
+                        nextLink.href = '#' + nextHeading.id;
+                        nextLink.className = 'next-chapter';
+                        nextLink.innerHTML = nextHeading.textContent + ' &raquo;';
+                        nav.appendChild(nextLink);
+                    }
+
+                    // 在每个h2标题后添加导航
+                    if (nav.childNodes.length > 0) {
+                        heading.parentNode.insertBefore(nav, heading.nextSibling);
+                    }
+                }
+            }
+
+            function scrollToSection(section) {
+                const element = document.getElementById(section);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            // 展开/折叠所有内容
+            function expandCollapseAll(expand) {
+                const sections = document.querySelectorAll('.main-content h2');
+
+                sections.forEach(function (section) {
+                    // 获取当前段落的所有内容（直到下一个h2为止）
+                    let currentElement = section.nextElementSibling;
+                    while (currentElement && currentElement.tagName !== 'H2') {
+                        if (expand) {
+                            currentElement.style.display = '';
+                        } else {
+                            // 不折叠章节导航
+                            if (!currentElement.classList.contains('chapter-navigation')) {
+                                currentElement.style.display = 'none';
+                            }
+                        }
+                        currentElement = currentElement.nextElementSibling;
+                    }
+
+                    // 添加展开/折叠指示器
+                    if (!section.querySelector('.toggle-indicator')) {
+                        const indicator = document.createElement('span');
+                        indicator.className = 'toggle-indicator';
+                        indicator.textContent = expand ? '▼' : '►';
+                        indicator.style.marginLeft = '10px';
+                        indicator.style.cursor = 'pointer';
+                        indicator.style.fontSize = '0.8em';
+                        indicator.style.color = '#777';
+                        section.appendChild(indicator);
+
+                        // 添加点击事件
+                        indicator.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            toggleSection(section);
+                        });
+                    } else {
+                        section.querySelector('.toggle-indicator').textContent = expand ? '▼' : '►';
+                    }
+
+                    // 添加整个标题的点击事件
+                    if (!section.hasAttribute('data-click-attached')) {
+                        section.style.cursor = 'pointer';
+                        section.setAttribute('data-click-attached', 'true');
+                        section.addEventListener('click', function () {
+                            toggleSection(this);
+                        });
+                    }
+                });
+            }
+
+            // 切换单个章节的展开/折叠状态
+            function toggleSection(section) {
+                const indicator = section.querySelector('.toggle-indicator');
+                const isExpanded = indicator.textContent === '▼';
+
+                indicator.textContent = isExpanded ? '►' : '▼';
+
+                let currentElement = section.nextElementSibling;
+                while (currentElement && currentElement.tagName !== 'H2') {
+                    // 不折叠章节导航
+                    if (!currentElement.classList.contains('chapter-navigation')) {
+                        currentElement.style.display = isExpanded ? 'none' : '';
+                    }
+                    currentElement = currentElement.nextElementSibling;
+                }
+            }
+        </script>
+
+        <!-- Suggested Learning Path Section -->
+        <div class="suggested-order"
+            style="margin-bottom: 2em; padding: 1em; border: 1px solid #ddd; background-color: #f7f7f9; border-radius: 5px;">
+            <h3><i class="fas fa-route"></i> 建议学习顺序</h3>
+            <p>为了更平稳地掌握 C++ 面向对象的概念，我们建议您按照以下顺序学习本教程的章节：</p>
+            <ol>
+                <li><a href="#this指针"><code>this</code> 指针</a></li>
+                <li><a href="#初始化列表">初始化列表</a></li>
+                <li><a href="#拷贝构造函数">拷贝构造函数</a></li>
+                <li><a href="#深拷贝与浅拷贝">深拷贝与浅拷贝</a></li>
+                <li><a href="#析构函数">析构函数</a></li>
+                <li><a href="#引用成员和类的构造">引用成员和类的构造</a></li>
+                <!-- <li><a href="#函数重载">函数重载</a> <em>(请确认您有此章节内容)</em></li> -->
+                <li><a href="#类的继承">类的继承</a></li>
+                <li><a href="#继承中的构造与析构顺序">继承中的构造与析构顺序</a></li>
+                <li><a href="#类的多态">类的多态</a></li>
+                <li><a href="#友元函数">友元函数</a></li>
+                <li><a href="#运算符重载">运算符重载</a></li>
+                <li><a href="#模板类">模板类</a></li>
+                <li><a href="#流">流</a></li>
+            </ol>
+            <p><small>提示：点击列表中的链接可以直接跳转到对应章节。</small></p>
+        </div>
+        <!-- End of Suggested Learning Path Section -->
+
+        <h2 id="初始化列表">初始化列表</h2>
+        <p><strong>作用</strong>：构造函数的一种特殊语法，用于在对象创建时直接初始化成员变量，而不是在构造函数体内进行赋值。</p>
+
+        <p><strong>为什么需要它？</strong></p>
+        <ol>
+            <li><strong>效率更高</strong>：对于类类型的成员，使用初始化列表是"初始化"，在函数体内赋值是"先默认初始化，再赋值"，前者省去了一次不必要的操作。</li>
+            <li><strong>必须使用</strong>：当类中有以下成员时，<strong>必须</strong>使用初始化列表：
+                <ul>
+                    <li><code>const</code> 常量成员变量（因为常量只能在定义时初始化）。</li>
+                    <li>引用类型成员变量（因为引用必须在定义时绑定）。</li>
+                    <li>没有默认构造函数的类类型成员。</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3><strong>注意</strong>：初始化列表中的成员变量初始化顺序只与声明顺序有关。</h3>
+
+        <div class="question">
+            <h3>题目：</h3>
+            <p>下面代码有什么问题？如何修正？</p>
+            <pre><code class="language-cpp">class MyClass {
+    const int id;
+    string& name;
+public:
+    MyClass(int i, string& n) {
+        id = i;       // 错误
+        name = n;     // 错误
+    }
+};</code></pre>
+        </div>
+
+        <div class="answer">
+            <h3>解析与答案：</h3>
+            <ul>
+                <li><strong>问题分析</strong>:
+                    <ul>
+                        <li><code>id</code> 是一个 <code>const</code> 常量成员，它必须在创建对象时（即构造函数的初始化列表阶段）就被初始化，不能在构造函数体内部被赋值。
+                        </li>
+                        <li><code>name</code> 是一个引用成员，引用必须在声明时就绑定到一个已存在的对象，这个过程也必须在初始化列表中完成。</li>
+                    </ul>
+                </li>
+                <li><strong>解决方法</strong>:
+                    <p>使用初始化列表来初始化 <code>id</code> 和 <code>name</code>。</p>
+                </li>
+                <li><strong>正确代码</strong>:
+                    <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class MyClass {
+    const int id;
+    std::string& name;
+public:
+    // 使用初始化列表
+    MyClass(int i, std::string& n) : id(i), name(n) {
+        // 构造函数体可以为空，或者执行其他操作
+    }
+    void print() {
+        std::cout &lt;&lt; "ID: " &lt;&lt; id &lt;&lt; ", Name: " &lt;&lt; name &lt;&lt; std::endl;
+    }
+};
+
+int main() {
+    std::string myName = "Alice";
+    MyClass obj(101, myName);
+    obj.print(); // 输出: ID: 101, Name: Alice
+
+    myName = "Bob"; // 修改原始变量
+    obj.print(); // 输出: ID: 101, Name: Bob (因为name是引用)
+    return 0;
+}</code></pre>
+                </li>
+            </ul>
+        </div> <!-- 拷贝构造函数部分示例 -->
+        <h2 id="拷贝构造函数">拷贝构造函数</h2>
+        <h3>拷贝构造函数的作用是什么？何时会调用拷贝构造函数？</h3>
+
+        <p><strong>作用</strong>：
+            拷贝构造函数是一个特殊的构造函数，用于<strong>创建一个新对象，并用已有对象的成员变量值初始化新对象。</strong>
+            它确保新对象是现有对象的副本，尤其在类中有动态分配资源（如指针）时，需进行<strong>深拷贝</strong>，避免浅拷贝导致的问题（如多个对象共享同一内存）。
+        </p>
+
+        <div class="code-header">
+            <span>拷贝构造函数示例</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">class MyClass {
+    int* ptr;
+public:
+    MyClass(const MyClass& other) {  // 拷贝构造函数
+        ptr = new int(*other.ptr);  // 深拷贝
+    }
+    // ... 其他成员函数和构造函数
+};</code></pre>
+
+        <p><strong>调用时机</strong>：</p>
+        <ol>
+            <li><strong>对象初始化</strong>：用一个对象初始化另一个对象时，例如<code>MyClass obj2 = obj1;</code>或<code>MyClass obj2(obj1);</code>
+            </li>
+            <li><strong>函数参数传递</strong>：对象以值传递方式传入函数时，形参创建副本，例如<code>void func(MyClass obj); func(obj1);</code></li>
+            <li><strong>函数返回值</strong>：函数返回对象时，返回值创建副本，例如<code>MyClass func() { return obj1; }</code>（除非有返回值优化 RVO）</li>
+        </ol>
+
+        <div class="chapter-navigation">
+            <a href="#类的继承" class="prev-chapter">类的继承</a>
+            <a href="#引用成员和类的构造" class="next-chapter">引用成员和类的构造</a>
+        </div>
+
+        <h2 id="引用成员和类的构造">引用成员和类的构造</h2>
+
+        <p>C++中，引用成员变量是对其他对象的别名，需要特别注意其初始化和生命周期。</p>
+
+        <div class="question">
+            <h3>题目：</h3>
+            <p>下面代码有什么问题？如何修正？</p>
+            <pre><code class="language-cpp">class MyClass {
+    const int id;
+    string& name;
+public:
+    MyClass(int i, string& n) {
+        id = i;       // 错误
+        name = n;     // 错误
+    }
+};</code></pre>
+        </div>
+
+        <div class="answer">
+            <h3>解析与答案：</h3>
+            <h3>问题分析</h3>
+            <ul>
+                <li><code>id</code> 是一个 <code>const</code> 常量成员，它必须在创建对象时（即构造函数的初始化列表阶段）就被初始化</li>
+                <li><code>name</code> 是一个引用成员，引用必须在声明时就绑定到一个已存在的对象</li>
+            </ul>
+
+            <h3>解决方法</h3>
+            <p>使用初始化列表来初始化 <code>id</code> 和 <code>name</code>。</p>
+
+            <div class="code-header">
+                <span>正确代码</span>
+                <span class="language-tag">C++</span>
+            </div>
+            <pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class MyClass {
+    const int id;
+    std::string& name;
+public:
+    // 使用初始化列表
+    MyClass(int i, std::string& n) : id(i), name(n) {
+        // 构造函数体可以为空，或者执行其他操作
+    }
+    void print() {
+        std::cout << "ID: " << id << ", Name: " << name << std::endl;
+    }
+};
+
+int main() {
+    std::string myName = "Alice";
+    MyClass obj(101, myName);
+    obj.print(); // 输出: ID: 101, Name: Alice
+
+    myName = "Bob"; // 修改原始变量
+    obj.print(); // 输出: ID: 101, Name: Bob (因为name是引用)
+    return 0;
+}</code></pre>
+        </div>
+
+        <div class="note">
+            <h3>引用成员的特点和注意事项</h3>
+            <ul>
+                <li><strong>必须在构造函数初始化列表中初始化</strong>，而不能在构造函数体内赋值</li>
+                <li>引用成员一旦初始化，不能再绑定到其他对象</li>
+                <li>引用成员永远指向初始化时绑定的对象，如果该对象被修改，引用成员访问的值也会改变</li>
+                <li>引用成员的生命周期必须不短于包含它的对象的生命周期，否则会导致悬挂引用</li>
+            </ul>
+        </div>
+
+        <div class="example-box">
+            <h3>引用成员与指针成员的比较</h3>
+            <table>
+                <tr>
+                    <th>特性</th>
+                    <th>引用成员</th>
+                    <th>指针成员</th>
+                </tr>
+                <tr>
+                    <td>可以为空</td>
+                    <td>否（必须始终引用一个有效对象）</td>
+                    <td>是（可以为nullptr）</td>
+                </tr>
+                <tr>
+                    <td>可重新指向</td>
+                    <td>否（一旦初始化不能改变）</td>
+                    <td>是（可随时改变指向）</td>
+                </tr>
+                <tr>
+                    <td>访问语法</td>
+                    <td>与普通对象相同（<code>obj.member</code>）</td>
+                    <td>需要解引用（<code>obj->member</code>或<code>(*obj).member</code>）</td>
+                </tr>
+                <tr>
+                    <td>内存管理</td>
+                    <td>不需要管理内存</td>
+                    <td>可能需要动态分配和释放内存</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="tip-box">
+            <h3>最佳实践</h3>
+            <ol>
+                <li>当需要一个始终有效且不可更改指向的变量时使用引用成员</li>
+                <li>当需要管理动态资源或对象可能为空时使用指针成员</li>
+                <li>考虑使用智能指针（如<code>std::shared_ptr</code>）代替原始指针，简化内存管理</li>
+                <li>确保引用成员引用的对象生命周期长于包含该引用的对象</li>
+            </ol>
+        </div>
+
+        <div class="chapter-navigation">
+            <a href="#引用成员和类的构造" class="prev-chapter">引用成员和类的构造</a>
+            <a href="#深拷贝与浅拷贝" class="next-chapter">深拷贝与浅拷贝</a>
+        </div>
+
+        <h2 id="深拷贝与浅拷贝">深拷贝与浅拷贝</h2>
+
+        <div class="question">
+            <h3>题目代码：</h3>
+            <pre><code class="language-cpp">#include &lt;cstring&gt; // Use &lt;cstring&gt; instead of <string.h> in C++
+        
+        class A {
+            int x, y;
+            char *p;
+        public:
+            A(const char *str) {
+                x = 0; y = 0;
+                p = new char[strlen(str)+1];
+                strcpy(p, str);
+            }
+            ~A() { delete [] p; p = nullptr; } // Good practice to set p to nullptr after delete
+            // ... 缺少拷贝构造函数
+        };
+        
+        int main() {
+            A a1("abcd");
+            A a2(a1); // 这里会出问题 (Problem here)
+            return 0;
+        } // 程序结束时，a1和a2的析构函数都会被调用 (At program end, destructors for a1 and a2 are called)
+        </code></pre>
+            <ul>
+                <li><strong>(1) 以上代码存在什么问题？（2 分）</strong></li>
+                <li><strong>(2) 如何解决？（2 分）</strong></li>
+            </ul>
+        </div>
+
+        <div class="answer">
+            <h3>解析：</h3>
+            <ul>
+                <li><strong>问题分析</strong>：
+                    <ul>
+                        <li><code>A a2(a1)</code> 调用了编译器自动生成的<strong>默认拷贝构造函数</strong>，该函数执行的是<strong>浅拷贝</strong>。</li>
+                        <li>浅拷贝只是简单地将 <code>a1.p</code> 的指针值赋给了 <code>a2.p</code>，导致 <code>a1</code> 和 <code>a2</code>
+                            的成员指针
+                            <code>p</code> 指向了<strong>同一块</strong>动态分配的内存。
+                        </li>
+                        <li>当 <code>main</code> 函数结束时，<code>a2</code> 首先被析构，释放了 <code>p</code> 指向的内存。随后 <code>a1</code>
+                            被析构，试图再次释放已经被释放的同一块内存，这会导致<strong>重复释放（double free）</strong>，引发程序崩溃或未定义行为。</li>
+                    </ul>
+                </li>
+                <li><strong>解决方法</strong>：
+                    <ul>
+                        <li>手动定义一个执行<strong>深拷贝</strong>的拷贝构造函数。深拷贝会为新对象 <code>a2</code> 的指针 <code>p</code> 分配一块全新的内存，并将
+                            `a1.p`
+                            所指向内存中的内容复制过来。这样，两个对象就各自拥有独立的内存资源。</li>
+                    </ul>
+                </li>
+            </ul>
+            <h3>答案：</h3>
+            <ul>
+                <li><strong>(1)</strong>：代码没有定义拷贝构造函数，导致编译器使用默认的浅拷贝。这使得 <code>a1</code> 和 <code>a2` 的指针 `p` 指向同一内存地址，在程序结束析构时会造成同一块内存被释放两次，导致程序错误。</li>
+                        <li><strong>(2)</strong>：为类 `A` 实现一个自定义的拷贝构造函数，在函数中进行深拷贝，为新对象的指针成员分配新的内存空间。</li>
+                    </ul>
+                    <p><strong>补充代码如下：</strong></p>
+                    <div class="code-header">
+                        <span>补充拷贝构造函数</span>
+                        <span class="language-tag">C++</span>
+                    </div>
+                    <pre><code class="language-cpp">// 添加到 class A 的 public 部分 (Add to the public section of class A)
+        A(const A& other) {
+            x = other.x;
+            y = other.y;
+            // 深拷贝：为新对象分配新内存 (Deep copy: allocate new memory for the new object)
+            p = new char[strlen(other.p) + 1];
+            // 复制内容，而不是指针地址 (Copy content, not the pointer address)
+            strcpy(p, other.p);
+        }
+        </code></pre>
+        </div>
+
+        <hr> <!-- Visual Separator -->
+
+        <div class="chapter-navigation">
+            <a href="#深拷贝与浅拷贝" class="prev-chapter">深拷贝与浅拷贝</a>
+            <a href="#类的继承" class="next-chapter">类的继承</a>
+        </div>
+
+        <h2 id="类的继承">类的继承</h2>
+
+        <h3 id="虚继承">虚继承</h3>
+        <p><strong>作用</strong>：主要用于解决<strong>菱形继承（Diamond Problem）</strong>问题。</p>
+        <p>当一个派生类从两个（或更多）基类继承，而这些基类又共同继承自同一个更基层的基类时，就形成了菱形继承。若不使用虚继承，派生类中会包含多份共同基类的成员，导致访问成员时出现<strong>歧义</strong>。虚继承确保共同基类在最终的派生类中只存在一个实例。
+        </p>
+
+        <div class="question">
+            <h3>题目：</h3>
+            <p>分析以下代码，指出存在的问题并修复它。</p>
+            <pre><code class="language-cpp">#include &lt;iostream&gt;
+        class Animal {
+        public:
+            int age;
+            // Adding a virtual destructor is good practice for base classes
+            virtual ~Animal() {}
+        };
+        
+        class Horse : public Animal {}; // 马是动物 (Horse is an Animal)
+        class Donkey : public Animal {}; // 驴是动物 (Donkey is an Animal)
+        
+        class Mule : public Horse, public Donkey { // 骡子是马和驴的后代 (Mule is descendant of Horse and Donkey)
+        public:
+            void setAge(int n) {
+                // age = n; // 编译错误！ (Compilation Error!)
+            }
+        };
+        </code></pre>
+        </div>
+
+        <div class="answer">
+            <h3>解析与答案：</h3>
+            <ul>
+                <li><strong>问题分析</strong>:
+                    <ul>
+                        <li><code>Mule</code> 类通过 <code>Horse</code> 和 <code>Donkey</code> 分别继承了 <code>Animal</code> 类。
+                        </li>
+                        <li>这导致 <code>Mule</code> 类的对象中包含了<strong>两份</strong> <code>Animal</code> 的子对象，即两份
+                            <code>age</code> 成员。
+                        </li>
+                        <li>当在 `Mule::setAge` 中访问 `age` 时，编译器无法确定是 <code>Horse::age`还是 `Donkey::age`，因此产生<strong>二义性（ambiguity）</strong>错误。</li>
+                            </ul>
+                        </li>
+                        <li><strong>解决方法</strong>:
+                            <p>将 <code>Horse</code> 和 <code>Donkey` 对 `Animal` 的继承方式改为<strong>虚继承</strong> (`virtual public`)。</p>
+                        </li>
+                        <li><strong>正确代码</strong>:
+                            <div class="code-header">
+                                <span>虚继承示例</span>
+                                <span class="language-tag">C++</span>
+                            </div>
+                            <pre><code class="language-cpp">#include &lt;iostream&gt;
+        
+        class Animal {
+        public:
+            int age;
+            virtual ~Animal() {} // Virtual destructor
+        };
+        
+        // 使用虚继承 (Use virtual inheritance)
+        class Horse : virtual public Animal {};
+        class Donkey : virtual public Animal {};
+        
+        class Mule : public Horse, public Donkey {
+        public:
+            void setAge(int n) {
+                age = n; // 正确：现在只有一个 age 实例 (Correct: now only one age instance)
+            }
+            int getAge() const { // Good practice to make getters const
+                return age; // 正确 (Correct)
+            }
+        };
+        
+        int main() {
+            Mule m;
+            m.setAge(10);
+            std::cout << "Mule's age is: " << m.getAge() << std::endl; // 输出 10
+            return 0;
+        }
+        </code></pre>
+                        </li>
+                    </ul>
+        </div>
+
+        <h3 id="访问权限">不同继承方式成员的访问权限</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>基类成员权限</th>
+                    <th><code>public</code> 继承</th>
+                    <th><code>protected</code> 继承</th>
+                    <th><code>private</code> 继承</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>public</code></td>
+                    <td><code>public</code></td>
+                    <td><code>protected</code></td>
+                    <td><code>private</code></td>
+                </tr>
+                <tr>
+                    <td><code>protected</code></td>
+                    <td><code>protected</code></td>
+                    <td><code>protected</code></td>
+                    <td><code>private</code></td>
+                </tr>
+                <tr>
+                    <td><code>private</code></td>
+                    <td>在派生类中<strong>不可见</strong></td>
+                    <td>在派生类中<strong>不可见</strong></td>
+                    <td>在派生类中<strong>不可见</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>总结</strong>：</p>
+        <ol>
+            <li>基类的 <code>private` 成员永远不能被派生类访问。</li>
+                    <li>继承方式决定了基类 `public` 和 `protected` 成员在派生类中的<strong>最高访问权限</strong>。权限只会缩小或保持，不会放大。</li>
+                </ol>
+        
+                <div class="question">
+                    <h3>题目：</h3>
+                    <p>对于以下类定义，指出 `main` 函数中哪些访问是合法的，哪些是非法的，并说明原因。</p>
+                    <pre><code class="language-cpp">#include &lt;iostream&gt; // Include for std::cout
+        
+        class Base {
+        private:
+            int a = 1;
+        protected:
+            int b = 2;
+        public:
+            int c = 3;
+        };
+        
+        class Derived : public Base {
+        public:
+            void test() {
+                // std::cout << a; // Illegal: a is private in Base
+                std::cout << "Inside Derived::test(): b = " << b << std::endl; // Legal: b is protected in Derived (accessible within Derived)
+                std::cout << "Inside Derived::test(): c = " << c << std::endl; // Legal: c is public in Derived (accessible within Derived)
+            }
+        };
+        
+        int main() {
+            Derived d;
+            // d.a = 10; // 访问 1
+            // d.b = 20; // 访问 2
+            d.c = 30; // 访问 3
+            std::cout << "In main: d.c = " << d.c << std::endl;
+            d.test(); // Call the test method to show internal access
+            return 0;
+        }
+        </code></pre>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>访问 1 (`d.a = 10;`)：<span class="incorrect">非法</span></strong>。
+                <ul>
+                    <li>原因：`a` 是 `Base` 类的 `private` 成员，它只能被 `Base` 类的成员函数访问，不能被任何外部代码（包括派生类成员函数和 `main` 函数）直接访问。
+                    </li>
+                </ul>
+            </li>
+            <li><strong>访问 2 (`d.b = 20;`)：<span class="incorrect">非法</span></strong>。
+                <ul>
+                    <li>原因：`b` 是 `Base` 类的 `protected` 成员。在 `public` 继承后，它在 `Derived` 类中仍然是 `protected`
+                        的。`protected` 成员可以被派生类的成员函数（如 `Derived::test`）访问，但不能被类外部的代码（如 `main` 函数）访问。</li>
+                </ul>
+            </li>
+            <li><strong>访问 3 (`d.c = 30;`)：<span class="correct">合法</span></strong>。
+                <ul>
+                    <li>原因：`c` 是 `Base` 类的 `public` 成员。在 `public` 继承后，它在 `Derived` 类中仍然是 `public` 的，因此可以被任何外部代码（如
+                        `main` 函数）访问。</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- Chapter Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#类的继承" class="prev-chapter">类的继承</a>
+        <a href="#类的多态" class="next-chapter">类的多态</a>
+    </div>
+
+    <h2 id="类的多态">类的多态</h2>
+
+    <p><strong>多态（Polymorphism）</strong> 意味着 "多种形态"。在 C++ 中，多态主要指通过<strong>基类指针或引用</strong>调用派生类的<strong>虚函数</strong>，实现
+        "一个接口，多种实现" 的效果。</p>
+    <p><strong>实现多态的条件</strong>：</p>
+    <ol>
+        <li>类之间必须存在继承关系。</li>
+        <li>基类中必须声明<strong>虚函数 (virtual function)</strong>。</li>
+        <li>使用<strong>基类指针或引用</strong>指向<strong>派生类对象</strong>。</li>
+    </ol>
+    <p>当通过基类指针或引用调用虚函数时，实际执行的是派生类中<strong>重写（override）</strong>的那个版本，这称为<strong>动态绑定</strong>或<strong>运行时多态</strong>。
+    </p>
+
+    <div class="question">
+        <h3>题目代码与问题：</h3>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+                        using namespace std;
+                        
+                        class Base {
+                        public:
+                            void show() { // 注意：没有 virtual 关键字 (Note: no virtual keyword)
+                                cout << "Base::show()" << endl;
+                            }
+                            // Virtual destructor is crucial when deleting via base pointer
+                            virtual ~Base() { cout << "Base Destructor" << endl; }
+                        };
+                        
+                        class Derived : public Base {
+                        public:
+                            void show() { // 重写了基类的 show 方法 (Overrides Base's show method)
+                                cout << "Derived::show()" << endl;
+                            }
+                            ~Derived() override { cout << "Derived Destructor" << endl; } // Use override keyword
+                        };
+                        
+                        int main() {
+                            Base *bp = new Derived(); // 基类指针指向派生类对象 (Base pointer points to Derived object)
+                            bp->show(); // 调用哪个 show? (Which show is called?)
+                            delete bp; // 是否会调用 Derived 的析构函数? (Will Derived's destructor be called?)
+                            return 0;
+                        }
+                        </code></pre>
+        <ul>
+            <li><strong>(1) <code>bp->show()</code> 会输出什么？为什么？（2 分）</strong></li>
+            <li><strong>(2) <code>delete bp;</code> 是否会调用 <code>Derived</code> 类的析构函数？为什么？（2 分）</strong></li>
+            <li><strong>(3) 如何修改代码以实现期望的多态行为（调用 <code>Derived::show()</code> 并正确析构）？（2 分）</strong></li>
+        </ul>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>(1)</strong> <code>bp->show()</code> 会输出 <strong><code>Base::show()</code></strong>。
+                <ul>
+                    <li><strong>原因</strong>：因为 <code>Base::show()</code>
+                        <strong>不是虚函数</strong>。编译器在编译时根据指针的<strong>静态类型</strong> (`Base*`)
+                        来决定调用哪个函数，这称为<strong>静态绑定</strong>。即使 <code>bp</code> 实际指向 <code>Derived</code> 对象，调用的仍然是
+                        <code>Base</code> 类的版本。
+                    </li>
+                </ul>
+            </li>
+            <li><strong>(2)</strong> 在原始代码中，如果 `Base` 的析构函数<strong>不是虚函数</strong>，那么 <code>delete bp;</code>
+                <strong>不会</strong>调用 <code>Derived</code> 类的析构函数，只会调用 `Base` 的析构函数。
+                <ul>
+                    <li><strong>原因</strong>：析构函数的调用机制与普通成员函数类似。如果基类析构函数不是虚的，通过基类指针删除派生类对象时，只会调用基类的析构函数，导致派生类部分的资源（如果有）无法被正确释放，产生<strong>内存泄漏</strong>或未定义行为。
+                    </li>
+                    <li><strong>注意</strong>：题目代码中已为 `Base` 添加了 `virtual
+                        ~Base()`，这是一个良好的实践。有了虚析构函数，<code>delete bp;</code>
+                        **会**先调用 `Derived` 的析构函数，再调用 `Base` 的析构函数，实现正确的销毁链。所以对于题目给出的 *具体*
+                        代码，析构会正常进行。但提问的本意通常是考察没有虚析构函数的情况。
+                    </li>
+                </ul>
+            </li>
+            <li><strong>(3)</strong> 解决方法：
+                <ul>
+                    <li>将 <code>Base</code> 类中的 <code>show()</code> 函数声明为<strong>虚函数</strong>，即在前面加上
+                        <code>virtual</code>
+                        关键字。
+                    </li>
+                    <li><strong>确保</strong> `Base` 类的析构函数也是<strong>虚函数</strong> (`virtual
+                        ~Base()`)，以保证通过基类指针删除派生类对象时能正确调用派生类的析构函数（题目代码已包含此点）。</li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>修改后的代码：</strong></p>
+        <div class="code-header">
+            <span>实现多态</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+                        using namespace std;
+                        
+                        class Base {
+                        public:
+                            // (1) 将 show 声明为虚函数
+                            virtual void show() {
+                                cout << "Base::show()" << endl;
+                            }
+                            // (2) 确保基类析构函数是虚函数 (已存在)
+                            virtual ~Base() { cout << "Base Destructor" << endl; }
+                        };
+                        
+                        class Derived : public Base {
+                        public:
+                            // 使用 override 关键字明确表示重写 (good practice)
+                            void show() override {
+                                cout << "Derived::show()" << endl;
+                            }
+                             ~Derived() override { cout << "Derived Destructor" << endl; }
+                        };
+                        
+                        int main() {
+                            Base *bp = new Derived();
+                            bp->show(); // 现在会调用 Derived::show() (Now calls Derived::show())
+                            delete bp; // 现在会先调用 ~Derived() 再调用 ~Base() (Now calls ~Derived() then ~Base())
+                            return 0;
+                        }
+                        // 输出:
+                        // Derived::show()
+                        // Derived Destructor
+                        // Base Destructor
+                        </code></pre>
+    </div>
+
+    <hr> <!-- Visual Separator -->
+
+    <div class="chapter-navigation">
+        <a href="#类的多态" class="prev-chapter">类的多态</a>
+        <a href="#友元函数" class="next-chapter">友元函数</a>
+    </div>
+
+    <h2 id="友元函数">友元函数</h2>
+
+    <p><strong>友元函数（Friend Function）</strong> 是在类定义中通过 <code>friend</code>
+        关键字声明的<strong>非成员函数</strong>。友元函数虽然不是类的成员，但它可以访问该类的所有成员（包括 <code>private</code> 和 <code>protected</code> 成员）。
+    </p>
+    <p><strong>作用</strong>：</p>
+    <ul>
+        <li>允许某些特定的外部函数访问类的私有或保护成员，打破封装性，但有时能提供更方便或高效的接口（例如，重载某些双目运算符如 `<<`、`>>` 时）。</li>
+        <li>友元关系是单向的，不具有传递性。</li>
+    </ul>
+
+    <div class="question">
+        <h3>题目代码与问题：</h3>
+        <p>假设我们需要一个非成员函数 <code>displayValue</code> 来访问类 <code>MyClass</code> 的私有成员
+            <code>value</code>。请完成以下代码，使其能够正确编译和运行。
+        </p>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+                        
+                        class MyClass {
+                        private:
+                            int value;
+                        public:
+                            MyClass(int v) : value(v) {}
+                        
+                            // TODO: 如何让 displayValue 访问私有成员 value? (How to let displayValue access private member value?)
+                        
+                        };
+                        
+                        // 非成员函数 (Non-member function)
+                        void displayValue(const MyClass& obj) {
+                            // 需要访问 obj.value (Needs to access obj.value)
+                            // std::cout << "The value is: " << obj.value << std::endl; // 直接访问会编译错误 (Direct access causes compilation error)
+                        }
+                        
+                        int main() {
+                            MyClass obj(42);
+                            // displayValue(obj); // 需要调用此函数 (Need to call this function)
+                            return 0;
+                        }
+                        </code></pre>
+        <ul>
+            <li><strong>(1) 如何修改 `MyClass` 类，使得 `displayValue` 函数能够访问其私有成员 `value`？（2 分）</strong></li>
+            <li><strong>(2) 完成 `displayValue` 函数的实现和 `main` 函数中的调用。（2 分）</strong></li>
+        </ul>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>(1)</strong> 在 <code>MyClass` 类的定义内部，使用 `friend` 关键字声明 `displayValue` 函数为该类的友元函数。</li>
+                                        <li><strong>(2)</strong> 在 `displayValue` 函数中直接访问对象的私有成员，并在 `main` 函数中调用该函数。</li>
+                                    </ul>
+                                    <p><strong>完成后的代码：</strong></p>
+                                     <div class="code-header">
+                                        <span>友元函数示例</span>
+                                        <span class="language-tag">C++</span>
+                                    </div>
+                                    <pre><code class="language-cpp">#include &lt;iostream&gt;
+                        
+                        // 前向声明 displayValue 函数，以便 MyClass 可以引用它
+                        // (Forward declare the displayValue function so MyClass can reference it)
+                        void displayValue(const MyClass& obj);
+                        
+                        class MyClass {
+                        private:
+                            int value;
+                        public:
+                            MyClass(int v) : value(v) {}
+                        
+                            // (1) 声明 displayValue 为友元函数
+                            // (Declare displayValue as a friend function)
+                            friend void displayValue(const MyClass& obj);
+                        };
+                        
+                        // (2) 实现友元函数，现在可以访问私有成员
+                        // (Implement the friend function, it can now access private members)
+                        void displayValue(const MyClass& obj) {
+                            std::cout << "The value is: " << obj.value << std::endl; // 现在合法 (Legal now)
+                        }
+                        
+                        int main() {
+                            MyClass obj(42);
+                            // (2) 调用 displayValue 函数
+                            // (Call the displayValue function)
+                            displayValue(obj); // 输出: The value is: 42
+                            return 0;
+                        }
+                        </code></pre>
+                <p><strong>注意</strong>：通常需要在使用 <code>friend</code> 关键字声明友元函数之前，对该函数进行前向声明（如代码中所示），或者将友元函数的定义放在类定义之后。</p>
+    </div>
+
+    <hr>
+
+    <div class="chapter-navigation">
+        <a href="#友元函数" class="prev-chapter">友元函数</a>
+        <a href="#运算符重载" class="next-chapter">运算符重载</a>
+    </div>
+
+    <h2 id="运算符重载">运算符重载</h2>
+
+    <p><strong>作用</strong>：允许为自定义类型（类和结构体）的运算赋予特定含义。例如，让 <code>+</code> 能够“相加”两个复数对象。</p>
+    <p><strong>两种方式</strong>：</p>
+    <ol>
+        <li><strong>成员函数</strong>：通常用于会改变对象自身状态的运算符（如 <code>+=</code>）或需要访问私有成员的二元运算符（如 <code>+</code>）。左操作数必须是该类的对象。
+        </li>
+        <li><strong>全局/友元函数</strong>：通常用于左操作数不是类对象的运算符（如 <code>cout << obj</code>），或者希望支持不同类型之间交换运算的场景（如 `2 *
+            complex_obj`）。
+        </li>
+    </ol>
+
+    <div class="question">
+        <h3>28. 编写学生成绩输入输出程序，使用重载操作符>>和<<（10 分）</h3>
+                <h3>题目要求：</h3>
+                <ul>
+                    <li>类<code>StudentScores</code>定义如下：</li>
+                </ul>
+                <pre><code class="language-cpp">const int MAX_NUM_OF_COURSES = 30;
+    const int MAX_ID_LEN = 10;
+    const int MAX_NAME_LEN = 8;
+    class StudentScores {
+    public:
+    StudentScores() { initialized = false; }
+    bool data_is_ok() const { return initialized; }
+    private:
+    int scores[MAX_NUM_OF_COURSES], num_of_courses;
+    char id[MAX_ID_LEN + 1], name[MAX_NAME_LEN + 1];
+    bool initialized;
+    friend istream &operator>>(istream &in, StudentScores &x);
+    friend ostream &operator<<(ostream &out, const StudentScores &x);
+    };
+    </code></pre>
+                <ul>
+                    <li>从键盘输入学生信息（学号、姓名、选课门数、成绩），保存到文件。</li>
+                    <li>使用重载<code>>></code>和<code><<</code>实现输入输出。</li>
+                </ul>
+    </div>
+
+    <div class="answer">
+        <h3>解答：</h3>
+        <h3>实现代码：</h3>
+        <div class="code-header">
+            <span>重载 I/O 操作符</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    #include &lt;fstream&gt;
+    #include &lt;vector&gt; // Better for dynamic scores if needed, though problem uses fixed array
+    #include &lt;string&gt; // Using string might be more convenient than char arrays
+    
+    using namespace std;
+    
+    const int MAX_NUM_OF_COURSES = 30;
+    const int MAX_ID_LEN = 10;
+    const int MAX_NAME_LEN = 8;
+    
+    class StudentScores {
+    public:
+    StudentScores() : num_of_courses(0), initialized(false) {
+        id[0] = '\0'; // Initialize char arrays
+        name[0] = '\0';
+    }
+    bool data_is_ok() const { return initialized; }
+    private:
+    int scores[MAX_NUM_OF_COURSES], num_of_courses;
+    char id[MAX_ID_LEN + 1], name[MAX_NAME_LEN + 1];
+    bool initialized;
+    // Declare friends for operator overloading
+    friend istream &operator>>(istream &in, StudentScores &x);
+    friend ostream &operator<<(ostream &out, const StudentScores &x);
+    };
+    
+    // 重载输入操作符 (Overload input operator)
+    istream &operator>>(istream &in, StudentScores &x) {
+    cout << "Enter ID (max " << MAX_ID_LEN << " chars): ";
+    in >> x.id; // Be careful with buffer overflows if input is too long
+    cout << "Enter Name (max " << MAX_NAME_LEN << " chars): ";
+    in >> x.name; // Be careful with buffer overflows
+    cout << "Enter number of courses (max " << MAX_NUM_OF_COURSES << "): ";
+    in >> x.num_of_courses;
+    
+    // Basic validation for number of courses
+    if (x.num_of_courses < 0 || x.num_of_courses > MAX_NUM_OF_COURSES) {
+         cerr << "Error: Invalid number of courses. Setting to 0." << endl;
+         x.num_of_courses = 0;
+         x.initialized = false; // Mark as not properly initialized
+         // Consider clearing the stream state or throwing an exception
+         in.clear(); // Clear potential error flags on stream
+         in.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard rest of the line
+         return in;
+    }
+    
+    cout << "Enter " << x.num_of_courses << " scores: ";
+    for (int i = 0; i < x.num_of_courses; i++) {
+        if (!(in >> x.scores[i])) { // Check if input succeeds
+             cerr << "Error reading score " << i+1 << ". Aborting input." << endl;
+             x.initialized = false;
+             in.clear();
+             in.ignore(numeric_limits<streamsize>::max(), '\n');
+             return in;
+        }
+    }
+    x.initialized = true;  // 数据有效 (Data is valid)
+    // It's often good practice to consume the rest of the line after reading data
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
+    return in;
+    }
+    
+    // 重载输出操作符 (Overload output operator)
+    ostream &operator<<(ostream &out, const StudentScores &x) {
+    if (!x.initialized) {
+        out << "[Student data not initialized or invalid]";
+        return out;
+    }
+    out << x.id << " " << x.name << " " << x.num_of_courses;
+    for (int i = 0; i < x.num_of_courses; i++) {
+        out << " " << x.scores[i];
+    }
+    return out;
+    }
+    
+    // main函数 (main function)
+    int main() {
+    StudentScores student;
+    cout << "--- Enter student data ---" << endl;
+    cin >> student;  // 从键盘输入 (Input from keyboard using overloaded >>)
+    
+    if (student.data_is_ok()) {
+        // 保存到文件 (Save to file)
+        ofstream outFile("students.txt"); // Changed filename for clarity
+        if (!outFile) {
+            cerr << "Failed to open students.txt for writing!" << endl;
+            return 1;
+        }
+        cout << "\nWriting to file: " << student << endl;
+        outFile << student << endl; // Write using overloaded <<
+        outFile.close();
+    
+        cout << "\n--- Reading from file ---" << endl;
+        // 从文件读取并显示 (Read from file and display)
+        ifstream inFile("students.txt");
+        if (!inFile) {
+            cerr << "Failed to open students.txt for reading!" << endl;
+            return 1;
+        }
+        StudentScores studentFromFile;
+        // Need to read fields manually or ensure file format matches operator>> expectations
+        // Simple reading assuming file format matches output format:
+        if (inFile >> studentFromFile) { // Use overloaded >> to read from file
+             cout << "Read from file: " << studentFromFile << endl;
+        } else {
+             cerr << "Failed to read student data from file." << endl;
+        }
+        inFile.close();
+    
+    } else {
+         cout << "\nStudent data was not entered correctly. Cannot proceed." << endl;
+    }
+    
+    
+    return 0;
+    }
+    </code></pre>
+        <p class="note"><strong>Note:</strong> The provided <code>operator>></code> implementation includes basic
+            prompts
+            and error checking for better usability. Reading directly from a file using <code>operator>></code> assumes
+            the
+            file format exactly matches the expected input sequence (ID, Name, NumCourses, Scores separated by
+            whitespace).
+        </p>
+    </div>
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>为 <code>Complex</code>（复数）类重载 <code>+</code> 运算符以实现复数加法，并重载 <code><<</code> 运算符以方便地用 `cout` 输出复数。</p>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    
+    class Complex {
+    private:
+    double real, imag;
+    public:
+    Complex(double r = 0, double i = 0) : real(r), imag(i) {}
+    // 在这里添加运算符重载 (Add operator overloads here)
+    };
+    
+    int main() {
+    Complex c1(2, 3);
+    Complex c2(4, -1);
+    Complex c3 = c1 + c2; // 使用 + 运算符 (Use + operator)
+    // std::cout << c3 << std::endl; // 期望输出 6+2i (Expected output 6+2i)
+    return 0;
+    }
+    </code></pre>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong><code>+</code> 运算符重载</strong>：可以作为成员函数。它接受一个 <code>Complex</code> 对象作为右操作数，返回一个新的
+                <code>Complex</code> 对象作为结果。
+            </li>
+            <li><strong><code><<</code> 运算符重载</strong>：<strong>必须作为全局/友元函数</strong>。因为 <code>cout << c3</code> 的左操作数是
+                <code>ostream</code> 类型的 `cout`，而不是 `Complex` 对象。为了访问 <code>Complex` 的私有成员 `real` 和 `imag`，需要将其声明为友元。</li>
+            </ul>
+            <p><strong>完整代码</strong>:</p>
+             <div class="code-header">
+                <span>重载 Complex 运算符</span>
+                <span class="language-tag">C++</span>
+            </div>
+            <pre><code class="language-cpp">#include &lt;iostream&gt;
+    
+    class Complex {
+    private:
+    double real, imag;
+    public:
+    Complex(double r = 0, double i = 0) : real(r), imag(i) {}
+    
+    // 1. 重载 + 运算符（作为成员函数）(Overload + operator as member function)
+    // 'const' at the end means this function doesn't modify the 'this' object (c1)
+    Complex operator+(const Complex& other) const {
+        return Complex(real + other.real, imag + other.imag);
+    }
+    
+    // 2. 声明 << 运算符重载为友元 (Declare << operator overload as friend)
+    friend std::ostream& operator<<(std::ostream& os, const Complex& c);
+    };
+    
+    // 3. 实现 << 运算符重载（作为全局友元函数）(Implement << overload as global friend)
+    std::ostream& operator<<(std::ostream& os, const Complex& c) {
+    os << c.real; // Access private member real because it's a friend
+    if (c.imag >= 0) {
+        os << "+"; // Add '+' sign for non-negative imaginary part
+    }
+    // No need to print '-' explicitly for negative imag, it's part of the number
+    os << c.imag << "i"; // Access private member imag
+    return os; // Return ostream reference to allow chaining (cout << c1 << c2)
+    }
+    
+    int main() {
+    Complex c1(2, 3);
+    Complex c2(4, -1);
+    Complex c3 = c1 + c2; // Calls c1.operator+(c2)
+    
+    std::cout << "c1: " << c1 << std::endl; // Calls operator<<(std::cout, c1) -> Output: c1: 2+3i
+    std::cout << "c2: " << c2 << std::endl; // Calls operator<<(std::cout, c2) -> Output: c2: 4-1i
+    std::cout << "c3 = c1 + c2: " << c3 << std::endl; // Calls operator<<(std::cout, c3) -> Output: c3 = c1 + c2: 6+2i
+    return 0;
+    }
+    </code></pre>
+    </div>
+
+    <hr>
+
+    <!-- Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#运算符重载" class="prev-chapter">运算符重载</a>
+        <a href="#模板类" class="next-chapter">模板类</a>
+    </div>
+    <h2 id="模板类">模板类</h2>
+
+    <p><strong>作用</strong>：创建“参数化的类”，即定义一个通用的类蓝图，其中的数据类型可以作为参数在创建对象时指定。这极大地提高了代码的<strong>复用性</strong>。例如，可以写一个
+        <code>Stack</code> 模板，用它来创建 <code>Stack&lt;int&gt;</code>, <code>Stack&lt;double&gt;</code>,
+        <code>Stack&lt;string&gt;</code> 等。
+    </p>
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>实现一个简单的栈（Stack）模板类，支持 <code>push</code>（入栈）、<code>pop</code>（出栈）、<code>top</code>（查看栈顶元素）和
+            <code>isEmpty</code>（判空）操作。并实例化一个整数栈和一个字符串栈进行测试。
+        </p>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>思路</strong>:
+                <ul>
+                    <li>使用 <code>template &lt;typename T&gt;</code> 来声明这是一个模板类，<code>T</code> 是一个占位符，代表任意数据类型。</li>
+                    <li>在类内部，使用 <code>T</code> 来定义数据成员（如存储元素的数组）和函数的参数/返回值类型。</li>
+                    <li>可以使用 <code>std::vector</code> 作为底层容器来简化实现。</li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>完整代码</strong>:</p>
+        <div class="code-header">
+            <span>Stack 模板类</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    #include &lt;vector&gt;
+    #include &lt;string&gt;
+    #include &lt;stdexcept&gt; // For std::out_of_range exception
+    
+    template &lt;typename T&gt; // Declare a class template with type parameter T
+    class Stack {
+    private:
+    std::vector&lt;T&gt; elems; // Use std::vector to store elements of type T
+    
+    public:
+    // Push an element onto the stack
+    void push(const T& elem) {
+        elems.push_back(elem); // Add element to the end of the vector
+    }
+    
+    // Pop (remove) the top element from the stack
+    void pop() {
+        if (isEmpty()) {
+            // Throw an exception if trying to pop from an empty stack
+            throw std::out_of_range("Stack<T>::pop(): empty stack");
+        }
+        elems.pop_back(); // Remove the last element from the vector
+    }
+    
+    // Return a reference to the top element (without removing it)
+    T& top() {
+        if (isEmpty()) {
+            // Throw an exception if trying to access top of an empty stack
+            throw std::out_of_range("Stack<T>::top(): empty stack");
+        }
+        return elems.back(); // Return reference to the last element
+    }
+    
+    // Check if the stack is empty
+    // 'const' indicates this method doesn't modify the stack object
+    bool isEmpty() const {
+        return elems.empty();
+    }
+    };
+    
+    int main() {
+    // --- 实例化一个整数栈 (Instantiate an integer stack) ---
+    std::cout << "--- Integer Stack ---" << std::endl;
+    try { // Use try-catch block to handle potential exceptions
+        Stack&lt;int&gt; intStack;
+        intStack.push(10);
+        intStack.push(20);
+        std::cout << "Top of intStack: " << intStack.top() << std::endl; // 输出 20 (Output 20)
+        intStack.pop();
+        std::cout << "Popped. Top of intStack: " << intStack.top() << std::endl; // 输出 10 (Output 10)
+        intStack.pop();
+        // std::cout << "Popped. Top of intStack: " << intStack.top() << std::endl; // This would throw std::out_of_range
+        if (intStack.isEmpty()) {
+             std::cout << "intStack is now empty." << std::endl;
+        }
+    } catch (const std::out_of_range& e) {
+        std::cerr << "Caught exception: " << e.what() << std::endl;
+    }
+    
+    
+    std::cout << "--------------------" << std::endl;
+    
+    // --- 实例化一个字符串栈 (Instantiate a string stack) ---
+     std::cout << "--- String Stack ---" << std::endl;
+     try {
+        Stack&lt;std::string&gt; stringStack;
+        stringStack.push("Hello");
+        stringStack.push("World");
+        std::cout << "Top of stringStack: " << stringStack.top() << std::endl; // 输出 World (Output World)
+        stringStack.pop();
+        std::cout << "Popped. Top of stringStack: " << stringStack.top() << std::endl; // 输出 Hello (Output Hello)
+     } catch (const std::out_of_range& e) {
+         std::cerr << "Caught exception: " << e.what() << std::endl;
+     }
+    
+    return 0;
+    }
+    </code></pre>
+    </div>
+
+    <hr>
+
+    <!-- Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#模板类" class="prev-chapter">模板类</a>
+        <a href="#流" class="next-chapter">流</a>
+    </div>
+
+    <h2 id="流">流</h2>
+
+    <p><strong>作用</strong>：C++ 的流库提供了一种统一的、类型安全的方式来进行输入/输出操作。最常用的是标准输入输出流（<code>cin</code>,
+        <code>cout</code>）和<strong>文件流</strong>。
+    </p>
+
+    <h3 id="cpp标准数据流对象">C++标准数据流对象</h3>
+    <p>C++ 标准库在 <code>&lt;iostream&gt;</code> 头文件中预定义了四个用于处理标准数据流的对象：</p>
+    <ul>
+        <li><code>cin</code>: 标准输入流对象，通常关联到键盘。</li>
+        <li><code>cout</code>: 标准输出流对象，通常关联到屏幕。</li>
+        <li><code>cerr</code>: 标准错误流对象，非缓冲，通常关联到屏幕，用于输出错误信息。</li>
+        <li><code>clog</code>: 标准错误流对象，缓冲，通常关联到屏幕，也用于输出错误信息。</li>
+    </ul>
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>下列选项中不属于 C++系统预定义的标准数据流对象的是：<br>
+            A. <code>cout</code> B. <code>cin</code> C. <code>cerr</code> D. <code>cset</code></p>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>答案</strong>: D. <code>cset</code></li>
+            <li><strong>解释</strong>：
+                <ul>
+                    <li><code>cset</code> 并非 C++标准库中的预定义流对象。</li>
+                    <li><code>cerr</code> 和 <code>clog</code> 的区别在于，<code>cerr</code> 是非缓冲的，输出会立即显示；而 <code>clog</code>
+                        是缓冲的，输出内容可能先存储在缓冲区中，待缓冲区满或特定条件下再实际输出。</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <p><strong>文件流关键类</strong>：</p>
+    <ul>
+        <li><code>ifstream</code> (input file stream): 从文件读取。</li>
+        <li><code>ofstream</code> (output file stream): 向文件写入。</li>
+        <li><code>fstream</code> (file stream): 可读可写。</li>
+    </ul>
+
+    <div class="question">
+        <h3>20. 填写程序，完成文件输入（4 分）</h3>
+        <h3>题目代码：</h3>
+        <pre><code class="language-cpp">#include __(1)___ // Needs fstream for file operations
+    #include &lt;iostream&gt;
+    #include &lt;cstdlib&gt; // For exit()
+    
+    using namespace std;
+    struct Student {
+    int no;
+    char name[10];
+    int scores[5];
+    } s1;
+    
+    int main() { // main should return int
+    // 以二进制方式输入数据 (Input data in binary mode)
+    ifstream in_file("d:\\students.dat", ____(2)____); // Specify binary mode
+    if(_____(3)_____) { // Check if file failed to open
+        cerr << "Fail to open file" << endl;
+        exit(1); // Or return 1;
+    }
+    // Read binary data into the struct s1
+    in_file.read(_____(4)_____, sizeof(s1));
+    in_file.close();
+    // It's good practice to check if the read was successful
+    // if (!in_file.good()) { cerr << "Error reading file." << endl; }
+    return 0; // Return 0 from main on success
+    }
+    </code></pre>
+    </div>
+
+    <div class="answer">
+        <h3>解析：</h3>
+        <ul>
+            <li><strong>目标</strong>：从文件读取二进制数据到结构体 <code>s1</code>。</li>
+            <li><strong>填空</strong>：
+                <ul>
+                    <li><strong>(1)</strong>：文件流操作需要包含头文件 <code>&lt;fstream&gt;</code>。</li>
+                    <li><strong>(2)</strong>：以二进制模式打开文件需要使用文件模式标志 <code>ios::binary</code> (或者
+                        <code>std::ios_base::binary</code>)。
+                    </li>
+                    <li><strong>(3)</strong>：检查文件是否成功打开，常用的方法是检查流对象本身的状态（`!in_file`）或者使用
+                        <code>!in_file.is_open()</code>。
+                    </li>
+                    <li><strong>(4)</strong>：<code>read</code> 方法需要一个 <code>char*</code> 指针指向内存缓冲区以及要读取的字节数。需要将结构体
+                        <code>s1</code> 的地址强制转换为 <code>char*</code>，即 <code>reinterpret_cast&lt;char*&gt;(&s1)</code>
+                        (推荐) 或
+                        C 风格的 `(char*)&s1`。
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>答案填空汇总：</strong></p>
+        <ol>
+            <li><code>&lt;fstream&gt;</code></li>
+            <li><code>ios::binary</code></li>
+            <li><code>!in_file</code> 或 <code>!in_file.is_open()</code></li>
+            <li><code>reinterpret_cast&lt;char*&gt;(&s1)</code> 或 <code>(char*)&s1</code></li>
+        </ol>
+    </div>
+
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>编写一个程序，完成以下两个任务：</p>
+        <ol>
+            <li>将字符串 "Hello, C++ File IO!" 写入到名为 <code>data.txt</code> 的文件中。</li>
+            <li>从 <code>data.txt</code> 文件中读取内容，并打印到控制台上。</li>
+        </ol>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>思路</strong>:
+                <ul>
+                    <li><strong>写入</strong>：创建一个 <code>ofstream</code> 对象并关联到 <code>data.txt</code> 文件。使用
+                        <code>&lt;&lt;</code> 运算符将字符串写入流。完成后关闭流（或利用 RAII，让对象在作用域结束时自动关闭）。
+                    </li>
+                    <li><strong>读取</strong>：创建一个 <code>ifstream</code> 对象并关联到 <code>data.txt</code> 文件。使用
+                        <code>getline</code> 函数或 <code>&gt;&gt;</code> 运算符从流中读取数据。打印到控制台。
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>完整代码</strong>:</p>
+        <div class="code-header">
+            <span>文件读写示例</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    #include &lt;fstream&gt; // Needed for file stream operations
+    #include &lt;string&gt;   // Needed for std::string and std::getline
+    
+    int main() {
+    std::string filename = "data.txt";
+    
+    // --- 1. 写入文件 (Write to file) ---
+    { // Using a block ensures ofs is destroyed and file is closed at the end
+        std::ofstream ofs(filename); // Create output file stream and open file
+    
+        // Always check if the file was opened successfully
+        if (!ofs.is_open()) {
+            std::cerr << "Error: Could not open " << filename << " for writing." << std::endl;
+            return 1; // Indicate error
+        }
+    
+        std::cout << "Writing to file '" << filename << "'..." << std::endl;
+        ofs << "Hello, C++ File IO!" << std::endl; // Write the first line
+        ofs << "This is a new line." << std::endl; // Write a second line
+    
+        std::cout << "Finished writing." << std::endl;
+    
+        // ofs goes out of scope here, its destructor closes the file automatically
+    }
+    
+    std::cout << "--------------------" << std::endl;
+    
+    // --- 2. 读取文件 (Read from file) ---
+    { // Using a block ensures ifs is destroyed and file is closed
+        std::ifstream ifs(filename); // Create input file stream and open file
+    
+        // Check if the file was opened successfully
+        if (!ifs.is_open()) {
+            std::cerr << "Error: Could not open " << filename << " for reading." << std::endl;
+            return 1; // Indicate error
+        }
+    
+        std::cout << "Reading from file '" << filename << "':" << std::endl;
+        std::string line;
+        // Read the file line by line until the end
+        while (std::getline(ifs, line)) {
+            std::cout << line << std::endl; // Print each line to the console
+        }
+    
+        // ifs goes out of scope here, its destructor closes the file automatically
+    }
+    
+    return 0; // Indicate success
+    }
+    </code></pre>
+    </div>
+
+    <hr>
+
+    <!-- Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#流" class="prev-chapter">流</a>
+        <a href="#析构函数" class="next-chapter">析构函数</a>
+    </div>
+    <h2 id="析构函数">析构函数</h2>
+
+    <!-- Navigation from previous section -->
+    <div class="chapter-navigation">
+        <a href="#流" class="prev-chapter">流</a>
+        <a href="#析构函数" class="next-chapter">析构函数</a>
+    </div>
+
+    <h3 id="析构函数">析构函数</h3>
+
+    <p><strong>析构函数的特征：</strong></p>
+    <ul>
+        <li>名称为 <code>~类名</code>。</li>
+        <li>没有返回类型（连 <code>void</code> 都不写）。</li>
+        <li>不能有参数。</li>
+        <li>不能被重载（因此一个类只有一个）。</li>
+        <li>通常声明为 <code>public</code>。</li>
+        <li>当对象的生命周期结束时（例如，局部对象离开其作用域，<code>delete</code> 指向动态对象的指针），析构函数会被自动调用。</li>
+        <li><strong>关键用途</strong>：主要用于释放在构造函数或对象生命周期中分配的资源，例如动态分配的内存（使用 `delete` 或 `delete[]`）、打开的文件句柄、网络连接等，防止资源泄漏。
+        </li>
+        <li><strong>虚析构函数</strong>：当类可能作为基类，并且可能通过基类指针删除派生类对象时，基类的析构函数<strong>必须</strong>声明为
+            `virtual`，以确保能正确调用派生类的析构函数，避免内存泄漏。</li>
+    </ul>
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>下列对析构函数的描述中，正确的是：<br>
+            A. 一个类中只能定义一个析构函数<br>
+            B. 析构函数名与类名不同<br>
+            C. 析构函数的定义只能在类体内<br>
+            D. 析构函数可以有一个或多个参数</p>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>答案</strong>: A</li>
+            <li><strong>解释</strong>：
+                <ul>
+                    <li><strong>A. 一个类中只能定义一个析构函数：</strong>
+                        正确。析构函数不能重载（因为它们没有参数，名称固定），所以一个类最多只能有一个用户定义的析构函数（或者编译器生成的默认析构函数）。</li>
+                    <li><strong>B. 析构函数名与类名不同：</strong> 错误。析构函数的名称是在类名前加上波浪号 <code>~</code> (tilde)，例如
+                        `~MyClass`。名称是基于类名的。
+                    </li>
+                    <li><strong>C. 析构函数的定义只能在类体内：</strong> 错误。析构函数可以在类体内定义（inline），也可以在类体外定义（在类内声明，在类外使用作用域解析运算符
+                        <code>::</code> 实现）。
+                    </li>
+                    <li><strong>D. 析构函数可以有一个或多个参数：</strong> 错误。析构函数不能有任何参数。</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="example">
+        <h3>用途示例：资源释放</h3>
+        <p>析构函数特别适合用来释放类对象中指针成员所指向的动态存储空间：</p>
+        <div class="code-header">
+            <span>析构函数释放内存</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    
+    class DynamicArray {
+    private:
+    int* data;
+    int size;
+    public:
+    // Constructor: Allocates dynamic memory
+    DynamicArray(int s) : size(s > 0 ? s : 1), data(new int[size]) { // Added basic size check
+        std::cout << "DynamicArray of size " << size << " constructed. Memory allocated at " << data << std::endl;
+        // Initialize elements (optional, good practice)
+        for(int i = 0; i < size; ++i) data[i] = 0;
+    }
+    
+    // Destructor: Deallocates the dynamic memory
+    ~DynamicArray() {
+        std::cout << "DynamicArray destructor called. Deleting memory at " << data << std::endl;
+        delete[] data; // Use delete[] for arrays allocated with new[]
+        data = nullptr; // Good practice to nullify pointer after deletion
+    }
+    
+    // Prevent copying and assignment (Rule of Three/Five/Zero)
+    // Or implement them properly with deep copy if needed
+    DynamicArray(const DynamicArray&) = delete;
+    DynamicArray& operator=(const DynamicArray&) = delete;
+    
+    // Example member function
+    void setValue(int index, int value) {
+        if (index >= 0 && index < size) {
+            data[index] = value;
+        }
+    }
+    int getValue(int index) const {
+         if (index >= 0 && index < size) {
+            return data[index];
+         }
+         return -1; // Or throw exception
+    }
+    };
+    
+    int main() {
+    std::cout << "Creating array1..." << std::endl;
+    DynamicArray array1(5); // Constructor allocates memory
+    array1.setValue(0, 100);
+    std::cout << "array1[0]: " << array1.getValue(0) << std::endl;
+    
+    std::cout << "Exiting main block..." << std::endl;
+    // array1 goes out of scope here, destructor is automatically called
+    // to free the allocated memory.
+    return 0;
+    }
+    // Expected Output:
+    // Creating array1...
+    // DynamicArray of size 5 constructed. Memory allocated at [some_address]
+    // array1[0]: 100
+    // Exiting main block...
+    // DynamicArray destructor called. Deleting memory at [some_address]
+    </code></pre>
+    </div>
+
+    <hr>
+
+    <!-- Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#析构函数" class="prev-chapter">析构函数</a>
+        <a href="#this指针" class="next-chapter">this 指针</a>
+    </div>
+
+    <h2 id="this指针">this 指针</h2>
+
+    <!-- Navigation from previous section -->
+    <div class="chapter-navigation">
+        <a href="#构造函数与析构函数" class="prev-chapter">构造函数与析构函数</a>
+        <a href="#this指针" class="next-chapter">this 指针</a>
+    </div>
+
+
+    <p><strong>作用</strong>：在类的<strong>非静态</strong>成员函数内部，<code>this</code> 是一个指向<strong>调用该函数的对象</strong>的指针。它的主要用途包括：
+    </p>
+    <ol>
+        <li>区分同名的成员变量和局部变量/参数。</li>
+        <li>在成员函数中返回对象自身的引用或指针（常用于实现链式调用）。</li>
+        <li>在成员函数中需要显式传递当前对象的指针或引用给其他函数时。</li>
+        <!-- The original markdown had "处理对象的自引用", which is covered by 2 & 3 -->
+    </ol>
+
+    <p><strong>特性</strong>：</p>
+    <ul>
+        <li><code>this</code> 是一个<em>隐含的</em>参数，不需要在函数参数列表中显式声明，由编译器自动传入。</li>
+        <li>它的类型通常是 <code>类类型* const</code>（一个指向类类型对象的<strong>常量指针</strong>，意味着 <code>this</code> 本身不能被重新赋值指向另一个对象，但可以通过
+            <code>this</code> 修改它所指向的对象的数据成员，除非成员函数是 <code>const</code>）。
+        </li>
+        <li>在 <code>const</code> 成员函数中，<code>this</code> 的类型是 <code>const 类类型* const</code>，表示不能通过 <code>this</code>
+            修改对象的任何非 `mutable` 数据成员。</li>
+        <li><strong>静态成员函数没有 <code>this</code> 指针</strong>，因为静态成员函数不与任何特定对象关联，它们属于类本身。</li>
+    </ul>
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>关于 this 指针使用说法正确的是：<br>
+            A. 保证每个对象拥有自己的数据成员,但共享处理这些数据的代码<br>
+            B. 保证基类私有成员在子类中可以被访问。<br>
+            C. 保证基类保护成员在子类中可以被访问。<br>
+            D. 保证基类公有成员在子类中可以被访问。</p>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <ul>
+            <li><strong>答案</strong>: A</li>
+            <li><strong>解释</strong>：
+                <ul>
+                    <li><strong>A. 保证每个对象拥有自己的数据成员,但共享处理这些数据的代码：</strong> 正确。这是 <code>this</code>
+                        指针的核心作用之一。成员函数代码只有一份，存储在代码段。当某个对象的成员函数被调用时，该对象的地址被隐式地通过 `this` 指针传递给函数。函数内部通过 `this`
+                        指针来访问<strong>当前调用对象</strong>的特定数据成员。这样，不同的对象使用同一份函数代码，却能操作各自独立的数据。</li>
+                    <li><strong>B、C、D 都是错误的</strong>。<code>this</code> 指针与继承中的访问控制（`private`, `protected`,
+                        `public`）完全无关。一个成员（无论是基类的还是派生类自身的）是否可访问，取决于访问它的上下文（类内部、派生类内部、类外部）以及该成员的访问修饰符。<code>this</code>
+                        只是提供了访问当前对象成员的方式，并不能改变访问权限规则。</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="example">
+        <h3>例子：</h3>
+        <div class="code-header">
+            <span>this 指针使用示例</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    
+    class Counter {
+    private:
+    int count; // Data member specific to each object
+    
+    public:
+    Counter(int initialCount = 0) : count(initialCount) {} // Constructor
+    
+    // Example 1: Using 'this' to return a reference to the current object
+    // Enables method chaining like c.increment().increment();
+    Counter& increment() {
+        this->count++; // Explicitly use 'this' (optional here as 'count' is unambiguous)
+        // count++;    // Implicitly uses 'this->count'
+        std::cout << "Incrementing counter at address: " << this << ", count = " << this->count << std::endl;
+        return *this;  // Return a reference to the current object (*this)
+    }
+    
+    // Example 2: Using 'this' to disambiguate between member variable and parameter
+    void setValue(int count) { // Parameter 'count' shadows member 'count'
+        std::cout << "Setting value for counter at address: " << this << std::endl;
+        this->count = count; // 'this->count' refers to the member variable
+                             // 'count' refers to the parameter
+    }
+    
+    // A const member function - 'this' becomes 'const Counter* const' inside
+    int getCount() const {
+        // this->count = 10; // Error! Cannot modify members in a const function
+        return this->count; // Reading is fine
+        // return count; // Also fine, implicitly this->count
+    }
+    
+    // Example 3: Passing the current object to another function
+    void printAddress() const {
+        std::cout << "Object address from within printAddress(): " << this << std::endl;
+    }
+    
+    void process( /* some parameters */ ) {
+        // Imagine calling a global function that needs a pointer to this object
+        // some_global_function(this);
+        printAddress(); // Call another member function (implicitly passes 'this')
+    }
+    };
+    
+    int main() {
+    Counter c1;       // Create object c1
+    Counter c2(10);   // Create object c2
+    
+    std::cout << "--- Chaining calls on c1 ---" << std::endl;
+    c1.increment().increment().increment(); // Chain calls using the returned reference
+    
+    std::cout << "\n--- Setting value for c2 ---" << std::endl;
+    c2.setValue(50); // Use 'this' to distinguish parameter and member
+    
+    std::cout << "\n--- Getting values ---" << std::endl;
+    std::cout << "c1 count: " << c1.getCount() << std::endl; // Output: 3
+    std::cout << "c2 count: " << c2.getCount() << std::endl; // Output: 50
+    
+    std::cout << "\n--- Processing c1 ---" << std::endl;
+    c1.process(); // Demonstrates implicit 'this' usage
+    
+    return 0;
+    }
+    </code></pre>
+    </div>
+
+    <hr>
+
+    <!-- Navigation for the next section -->
+    <div class="chapter-navigation">
+        <a href="#this指针" class="prev-chapter">this 指针</a>
+        <a href="#继承中的构造与析构顺序" class="next-chapter">继承中的构造与析构顺序</a>
+    </div>
+
+    <h2 id="继承中的构造与析构顺序">继承中的构造与析构顺序</h2>
+
+    <!-- Navigation from previous section -->
+    <div class="chapter-navigation">
+        <a href="#this指针" class="prev-chapter">this 指针</a>
+        <a href="#继承中的构造与析构顺序" class="next-chapter">继承中的构造与析构顺序</a>
+    </div>
+
+
+    <p><strong>构造函数执行顺序</strong>：当创建派生类对象时，构造函数的调用顺序如下：</p>
+    <ol>
+        <li><strong>(虚)基类构造函数</strong>：
+            <ul>
+                <li>首先调用所有虚基类的构造函数（如果有的话），顺序取决于它们在继承层次结构中的位置以及在派生类继承列表中的声明顺序（但每个虚基类只构造一次）。</li>
+                <li>然后按照在派生类继承列表中声明的顺序，调用非虚基类的构造函数。</li>
+            </ul>
+        </li>
+        <li><strong>成员对象构造函数</strong>：按照成员对象在派生类中声明的顺序进行初始化。</li>
+        <li><strong>派生类自身构造函数体</strong>：最后执行派生类构造函数体内的代码。</li>
+    </ol>
+
+    <p><strong>析构函数执行顺序</strong>：与构造函数顺序<strong>完全相反</strong></p>
+    <ol>
+        <li><strong>派生类自身析构函数体</strong>：先执行派生类析构函数体内的代码。</li>
+        <li><strong>成员对象析构函数</strong>：按照成员对象在派生类中声明的<strong>逆序</strong>进行析构。</li>
+        <li><strong>(虚)基类析构函数</strong>：
+            <ul>
+                <li>按照在派生类继承列表中声明的<strong>逆序</strong>，调用非虚基类的析构函数。</li>
+                <li>最后调用所有虚基类的析构函数（如果有的话），顺序通常与构造相反，同样每个只析构一次。</li>
+            </ul>
+        </li>
+    </ol>
+    <p class="note"><strong>关键点</strong>: 如果基类的析构函数<strong>不是虚函数</strong> (<code>virtual</code>)，那么当通过基类指针
+        <code>delete</code> 一个派生类对象时，只会调用基类的析构函数，派生类的析构函数和成员对象的析构函数将不会被调用，可能导致资源泄漏。因此，<strong>只要类可能被继承，其析构函数就应该声明为
+            <code>virtual</code></strong>。
+    </p>
+
+
+    <div class="question">
+        <h3>题目：</h3>
+        <p>派生类构造函数的执行顺序是先执行<strong>____</strong> 的构造函数，然后执行成员对象的构造函数，最后执行 <strong>____</strong> 的构造函数。</p>
+    </div>
+
+    <div class="answer">
+        <h3>解析与答案：</h3>
+        <p><strong>答案</strong>：<strong>基类</strong>；<strong>派生类自身</strong></p>
+        <p>(更精确地说，是按照基类列表顺序执行所有直接基类的构造函数，然后按声明顺序执行成员对象的构造函数，最后执行派生类自己的构造函数体。)</p>
+    </div>
+
+    <div class="example">
+        <h3>示例：</h3>
+        <div class="code-header">
+            <span>构造与析构顺序示例</span>
+            <span class="language-tag">C++</span>
+        </div>
+        <pre><code class="language-cpp">#include &lt;iostream&gt;
+    #include &lt;string&gt;
+    
+    using namespace std;
+    
+    class Base {
+    public:
+    Base() {
+        cout << "Base constructor called." << endl;
+    }
+    // Make destructor virtual if Base might be deleted via base pointer
+    virtual ~Base() {
+        cout << "Base destructor called." << endl;
+    }
+    };
+    
+    class Member {
+    private:
+    string name;
+    public:
+    Member(const string& n = "DefaultMember") : name(n) {
+        cout << "Member '" << name << "' constructor called." << endl;
+    }
+    ~Member() {
+        cout << "Member '" << name << "' destructor called." << endl;
+    }
+    };
+    
+    class Derived : public Base {
+    private:
+    Member m1; // Member object 1
+    Member m2; // Member object 2
+    public:
+    // Constructor for Derived, initializing members in initializer list
+    Derived() : Base(), m1("FirstMember"), m2("SecondMember") {
+        cout << "Derived constructor body executed." << endl;
+    }
+    ~Derived() {
+        cout << "Derived destructor body executed." << endl;
+        // m2 destructor called automatically after this
+        // m1 destructor called automatically after m2's
+        // Base destructor called automatically after m1's
+    }
+    };
+    
+    int main() {
+    { // Create a scope to observe construction and destruction
+        cout << "--- Creating Derived object d ---" << endl;
+        Derived d;
+        cout << "--- Derived object d exists ---" << endl;
+    } // d goes out of scope here, destructor sequence begins
+    cout << "--- Derived object d destroyed ---" << endl;
+    
+    cout << "\n--- Deleting via Base pointer ---" << endl;
+    Base* ptr = new Derived(); // Create Derived object on heap
+    cout << "--- Deleting object via Base pointer ---" << endl;
+    delete ptr; // Requires Base destructor to be virtual!
+    cout << "--- Object deleted ---" << endl;
+    
+    
+    return 0;
+    }
+    </code></pre>
+        <p><strong>预期输出 (主要顺序):</strong></p>
+        <pre><code>--- Creating Derived object d ---
+    Base constructor called.
+    Member 'FirstMember' constructor called.
+    Member 'SecondMember' constructor called.
+    Derived constructor body executed.
+    --- Derived object d exists ---
+    Derived destructor body executed.
+    Member 'SecondMember' destructor called.
+    Member 'FirstMember' destructor called.
+    Base destructor called.
+    --- Derived object d destroyed ---
+    
+    --- Deleting via Base pointer ---
+    Base constructor called.
+    Member 'FirstMember' constructor called.
+    Member 'SecondMember' constructor called.
+    Derived constructor body executed.
+    --- Deleting object via Base pointer ---
+    Derived destructor body executed.
+    Member 'SecondMember' destructor called.
+    Member 'FirstMember' destructor called.
+    Base destructor called.          // This is called correctly *because* ~Base() is virtual
+    --- Object deleted ---
+    </code></pre>
+    </div>
+
+
+    <div class="key-points">
+        <p><strong>重点注意</strong>：</p>
+        <ul>
+            <li>如果存在多重继承（一个派生类有多个直接基类），基类构造函数的调用顺序取决于它们在派生类继承列表中的<strong>声明顺序</strong>。析构顺序则相反。</li>
+            <li>如果存在虚继承（使用 `virtual public
+                Base`），虚基类的构造函数会优先于所有非虚基类被调用（具体顺序依赖于整个继承图），并且在最终派生对象的构造过程中，每个虚基类的构造函数<strong>只会被调用一次</strong>，即使它在继承路径中出现多次。虚基类的析构也只发生一次，通常在所有非虚基类之后。
+            </li>
+        </ul>
+    </div>
+    <hr>

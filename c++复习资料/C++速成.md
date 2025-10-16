@@ -1,4 +1,4 @@
-# C++必会 9 个高频考点
+# C++期末速成指南
 
 > [我的 b 站主页](https://space.bilibili.com/361358232)
 >
@@ -303,96 +303,168 @@ int main() {
 
 ## 类的多态
 
-**作用**：多态允许我们以统一的方式处理不同类型的对象。核心思想是 **“一个接口，多种实现”**。在 C++ 中，运行时多态是通过 **虚函数** 和 **基类指针/引用** 实现的。
+**作用**：多态允许我们以统一的方式处理不同类型的对象。核心思想是 **"一个接口，多种实现"**。在 C++ 中，运行时多态是通过 **虚函数** 和 **基类指针/引用** 实现的。
 
-**关键点**：
+**多态性的定义和类型**：
 
-- 在基类中将需要被派生类重写的函数声明为 `virtual`。
-- 派生类中重写（override）该虚函数。
-- 通过基类的指针或引用指向派生类的对象，调用该虚函数时，会根据指针实际指向的对象类型来决定调用哪个版本的函数（**动态绑定**）。
+- **多态性（Polymorphism）**：允许不同类的对象对相同的消息（函数调用）做出不同的响应。
+- **静态多态（编译时多态）**：通过函数重载和模板实现，在编译阶段确定调用哪个函数。
+- **动态多态（运行时多态）**：通过继承和虚函数实现，在运行时根据对象实际类型确定调用哪个函数。
 
-### **24. C++怎样实现消息的动态绑定，请简单说明下实现过程。**
+**实现运行时多态的条件**：
 
-- **动态绑定**：  
-  动态绑定是指在**运行时**（而非编译时）决定调用哪个函数版本，主要用于继承和多态场景。C++通过**虚函数（virtual functions）**实现。
+1. 类之间存在继承关系
+2. 基类中声明了虚函数
+3. 通过基类指针或引用指向派生类对象，并调用虚函数
 
-- **实现过程**：
+#### **题目**：
 
-  1. **虚函数表（vtable）**：  
-     当类中定义虚函数时，编译器为该类生成一个虚函数表，存储所有虚函数的地址。
-  2. **虚函数指针（vptr）**：  
-     每个含虚函数的对象在内存中有一个隐藏的虚函数指针，指向其类的 vtable。
-  3. **运行时解析**：  
-     通过基类指针或引用调用虚函数时，程序根据对象的`vptr`找到 vtable，再从表中获取实际函数地址（通常是派生类的实现）。
+所谓多态性是指：
+A. 不同的对象调用不同名称的函数
+B. 不同的对象调用相同名称的函数
+C. 一个对象调用不同名称的函数
+D. 一个对象调用不同名称的对象
 
-### **题目：**
+#### **解析与答案**：
 
-下面代码的输出是什么？为什么？
+- **答案**: B
+- **解释**：
+  - **B. 不同的对象调用相同名称的函数：** 正确。这是多态的典型表现。例如，基类指针指向不同的派生类对象，通过该指针调用一个虚函数，会执行各自派生类中该虚函数的版本。
+  - 选项 A 描述的是不同对象调用不同函数，这不是多态，只是正常的函数调用。
+  - 选项 C 描述的是一个对象调用不同函数，也不是多态，一个对象可以调用它所拥有的多个不同名称的成员函数。
+  - 选项 D 的表述不准确，对象之间通常是通过成员函数进行交互。
+
+#### **多态示例**：
 
 ```cpp
 #include <iostream>
 
-class Shape {
+class Animal {
 public:
-    virtual void draw() {
-        std::cout << "Drawing a generic shape." << std::endl;
+    virtual void makeSound() const {
+        std::cout << "Some generic animal sound" << std::endl;
     }
 };
 
-class Circle : public Shape {
+class Dog : public Animal {
 public:
-    void draw() override { // override 关键字建议使用，能帮助编译器检查
-        std::cout << "Drawing a circle." << std::endl;
+    void makeSound() const override {
+        std::cout << "Woof!" << std::endl;
     }
 };
 
-class Square : public Shape {
+class Cat : public Animal {
 public:
-    void draw() override {
-        std::cout << "Drawing a square." << std::endl;
+    void makeSound() const override {
+        std::cout << "Meow!" << std::endl;
     }
 };
 
-void render(Shape* shape) {
-    shape->draw();
+// 通过基类指针调用makeSound函数，实现多态
+void animalSound(const Animal* animal) {
+    animal->makeSound(); // 根据animal指向的实际对象类型决定调用哪个版本
 }
 
 int main() {
-    Shape s;
-    Circle c;
-    Square sq;
+    Animal* dog = new Dog();
+    Animal* cat = new Cat();
+    Animal* animal = new Animal();
 
-    render(&s);
-    render(&c);
-    render(&sq);
+    animalSound(dog);    // 输出: Woof!
+    animalSound(cat);    // 输出: Meow!
+    animalSound(animal); // 输出: Some generic animal sound
+
+    delete dog;
+    delete cat;
+    delete animal;
     return 0;
 }
 ```
 
-### **解析与答案：**
-
-- **输出**:
-
-  ```
-  Drawing a generic shape.
-  Drawing a circle.
-  Drawing a square.
-  ```
-
-- **原因**:
-
-  1. `Shape` 类中的 `draw()` 函数被声明为 `virtual`。这告诉编译器，这个函数的调用应该在运行时根据对象的实际类型来决定（动态绑定）。
-  2. `render` 函数接受一个 `Shape*` 类型的指针。
-  3. 当 `render(&s)` 被调用时，指针 `shape` 指向一个 `Shape` 对象，所以调用的是 `Shape::draw()`。
-  4. 当 `render(&c)` 被调用时，指针 `shape` 指向一个 `Circle` 对象。尽管指针类型是 `Shape*`，但由于 `draw()` 是虚函数，系统会动态地查找到 `Circle` 类中重写的 `draw()` 版本并调用它。
-  5. 同理，当 `render(&sq)` 被调用时，系统调用 `Square::draw()`。
-     这就是多态性的体现：同一个函数调用 `shape->draw()`，根据指针 `shape` 所指向的实际对象类型的不同，产生了不同的行为。
+**关键点**：
 
 ---
 
 ## 友元函数
 
 **作用**：友元允许一个类外的函数或另一个类访问该类的 `private` 和 `protected` 成员。它破坏了封装性，但为一些特定场景提供了便利，例如需要访问两个不同类私有成员的全局函数。
+
+**特性与规则**：
+
+- 友元函数不是类的成员函数
+- 友元函数在类中用`friend`关键字声明，但通常在类外定义
+- 友元函数可以访问该类的所有成员，包括私有和保护成员
+- 友元关系不具有传递性（A 是 B 的友元，B 是 C 的友元，A 不自动成为 C 的友元）
+- 友元关系不具有继承性（父类的友元不自动成为子类的友元）
+
+#### **题目**：
+
+下面对于友元函数描述正确的是：
+A. 友元函数的实现必须在类的内部定义
+B. 友元函数是类的成员函数
+C. 友元函数破坏了类的封装性和隐藏性
+D. 友元函数不能访问类的私有成员
+
+#### **解析与答案**：
+
+- **答案**: C
+- **解释**：
+  - **A**：错误。友元函数可以在类内部定义，但通常在类外部定义。
+  - **B**：错误。友元函数不是类的成员函数，它没有`this`指针。
+  - **C**：正确。友元函数可以访问类的私有成员，这在一定程度上确实破坏了封装性。
+  - **D**：错误。友元函数的主要目的就是为了能够访问类的私有和保护成员。
+
+#### **友元函数示例**：
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Box {
+private:
+    double length;
+    double width;
+    double height;
+
+public:
+    Box(double l = 0, double w = 0, double h = 0) : length(l), width(w), height(h) {}
+
+    // 声明友元函数
+    friend double calculateVolume(const Box& box);
+
+    // 重载+运算符的友元函数
+    friend Box operator+(const Box& box1, const Box& box2);
+};
+
+// 友元函数实现 - 计算体积
+double calculateVolume(const Box& box) {
+    // 可以直接访问Box的私有成员
+    return box.length * box.width * box.height;
+}
+
+// 友元函数实现 - 合并两个盒子
+Box operator+(const Box& box1, const Box& box2) {
+    Box box;
+    // 可以直接访问两个Box对象的私有成员
+    box.length = box1.length + box2.length;
+    box.width = box1.width + box2.width;
+    box.height = box1.height + box2.height;
+    return box;
+}
+
+int main() {
+    Box box1(2, 3, 4);
+    Box box2(1, 2, 1);
+
+    cout << "Volume of box1: " << calculateVolume(box1) << endl; // 输出: 24
+    cout << "Volume of box2: " << calculateVolume(box2) << endl; // 输出: 2
+
+    Box combinedBox = box1 + box2;
+    cout << "Volume of combined box: " << calculateVolume(combinedBox) << endl; // 输出: 126
+
+    return 0;
+}
+```
 
 ### **题目：**
 
@@ -724,6 +796,27 @@ int main() {
 
 **作用**：C++ 的流库提供了一种统一的、类型安全的方式来进行输入/输出操作。最常用的是标准输入输出流（`cin`, `cout`）和**文件流**。
 
+### C++标准数据流对象
+
+C++ 标准库在 `<iostream>` 头文件中预定义了四个用于处理标准数据流的对象：
+
+- `cin`: 标准输入流对象，通常关联到键盘。
+- `cout`: 标准输出流对象，通常关联到屏幕。
+- `cerr`: 标准错误流对象，非缓冲，通常关联到屏幕，用于输出错误信息。
+- `clog`: 标准错误流对象，缓冲，通常关联到屏幕，也用于输出错误信息。
+
+#### **题目：**
+
+下列选项中不属于 C++系统预定义的标准数据流对象的是：
+A. `cout` B. `cin` C. `cerr` D. `cset`
+
+#### **解析与答案：**
+
+- **答案**: D. `cset`
+- **解释**：
+  - `cset` 并非 C++标准库中的预定义流对象。
+  - `cerr` 和 `clog` 的区别在于，`cerr` 是非缓冲的，输出会立即显示；而 `clog` 是缓冲的，输出内容可能先存储在缓冲区中，待缓冲区满或特定条件下再实际输出。
+
 **文件流关键类**：
 
 - `ifstream` (input file stream): 从文件读取。
@@ -824,3 +917,226 @@ void main() {
       return 0;
   }
   ```
+
+---
+
+## 构造函数与析构函数
+
+### 析构函数
+
+**析构函数的特征：**
+
+- 名称为 `~类名`。
+- 没有返回类型（连 `void` 都不写）。
+- 不能有参数。
+- 不能被重载（因此一个类只有一个）。
+- 通常声明为 `public`。
+- 当对象的生命周期结束时（例如，局部对象离开其作用域，`delete` 指向动态对象的指针），析构函数会被自动调用。
+
+#### **题目：**
+
+下列对析构函数的描述中，正确的是：
+A. 一个类中只能定义一个析构函数
+B. 析构函数名与类名不同
+C. 析构函数的定义只能在类体内
+D. 析构函数可以有一个或多个参数
+
+#### **解析与答案：**
+
+- **答案**: A
+- **解释**：
+  - **A. 一个类中只能定义一个析构函数：** 正确。析构函数不能重载，因此一个类最多只能有一个析构函数。
+  - **B. 析构函数名与类名不同：** 错误。析构函数的名称是在类名前加上波浪号 `~`。
+  - **C. 析构函数的定义只能在类体内：** 错误。析构函数可以在类体内定义，也可以在类体外定义（类内声明，类外通过作用域解析运算符 `::` 实现）。
+  - **D. 析构函数可以有一个或多个参数：** 错误。析构函数不能有任何参数。
+
+#### **用途示例：**
+
+析构函数特别适合用来释放类对象中指针成员所指向的动态存储空间：
+
+```cpp
+class DynamicArray {
+private:
+    int* data;
+    int size;
+public:
+    DynamicArray(int s) : size(s) {
+        data = new int[size]; // 在构造函数中分配动态内存
+    }
+
+    ~DynamicArray() {
+        delete[] data; // 在析构函数中释放动态内存
+        data = nullptr;
+    }
+
+    // 其他成员函数...
+};
+```
+
+## this 指针
+
+**作用**：在类的非静态成员函数内部，`this` 是一个指向调用该函数的对象的指针。它的主要用途包括：
+
+1. 区分同名的成员变量和局部变量/参数
+2. 在成员函数中返回对象自身的引用或指针
+3. 处理对象的自引用
+
+**特性**：
+
+- `this` 是一个隐含的参数，不需要在函数定义中声明
+- 它的类型是 `类类型* const`（一个指向类类型的常量指针）
+- 静态成员函数没有 `this` 指针，因为静态成员函数不与任何特定对象关联
+
+#### **题目**：
+
+关于 this 指针使用说法正确的是：
+A. 保证每个对象拥有自己的数据成员,但共享处理这些数据的代码
+B. 保证基类私有成员在子类中可以被访问。
+C. 保证基类保护成员在子类中可以被访问。
+D. 保证基类公有成员在子类中可以被访问。
+
+#### **解析与答案**：
+
+- **答案**: A
+- **解释**：
+  - **A. 保证每个对象拥有自己的数据成员,但共享处理这些数据的代码：** 正确。`this` 指针使得同一个类的不同对象可以共享成员函数代码，但同时每个对象都有其独立的数据成员。当类的成员函数被调用时，`this` 指针指向调用该函数的对象。
+  - **B、C、D 都是错误的**。`this` 指针与继承层次中的访问控制无关。基类成员在子类中的可访问性由访问修饰符（`private`、`protected`、`public`）决定。
+
+#### **例子**：
+
+```cpp
+class Counter {
+private:
+    int count;
+public:
+    Counter() : count(0) {}
+
+    // 使用this指针返回对象自身的引用，实现链式调用
+    Counter& increment() {
+        this->count++; // 或简写为 count++
+        return *this;  // 返回当前对象的引用
+    }
+
+    // 解决名称冲突
+    void setValue(int count) {
+        this->count = count; // 区分成员变量和参数
+    }
+
+    int getCount() const {
+        return count;
+    }
+};
+
+int main() {
+    Counter c;
+    c.increment().increment().increment(); // 链式调用
+    std::cout << c.getCount() << std::endl; // 输出: 3
+    return 0;
+}
+```
+
+---
+
+## 继承中的构造与析构顺序
+
+**构造函数执行顺序**：当创建派生类对象时，构造函数的调用顺序如下：
+
+1. **基类构造函数**：先执行基类的构造函数
+2. **成员对象构造函数**：按照成员对象在类中声明的顺序
+3. **派生类自身构造函数体**：最后执行派生类构造函数的代码
+
+**析构函数执行顺序**：与构造函数顺序相反
+
+1. **派生类析构函数体**：先执行
+2. **成员对象析构函数**：按照成员对象在类中声明的逆序
+3. **基类析构函数**：最后执行
+
+#### **题目：**
+
+派生类构造函数的执行顺序是先执行**\_\_\_\_** 的构造函数，然后执行成员对象的构造函数，最后执行 **\_\_\_\_** 的构造函数。
+
+#### **解析与答案**：
+
+- **答案**：基类；派生类自身
+
+#### **示例**：
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    Base() {
+        cout << "Base constructor" << endl;
+    }
+    ~Base() {
+        cout << "Base destructor" << endl;
+    }
+};
+
+class Member {
+public:
+    Member() {
+        cout << "Member constructor" << endl;
+    }
+    ~Member() {
+        cout << "Member destructor" << endl;
+    }
+};
+
+class Derived : public Base {
+private:
+    Member m; // 成员对象
+public:
+    Derived() {
+        cout << "Derived constructor" << endl;
+    }
+    ~Derived() {
+        cout << "Derived destructor" << endl;
+    }
+};
+
+int main() {
+    {
+        cout << "Creating Derived object:" << endl;
+        Derived d;
+        cout << "Derived object created." << endl;
+    } // 作用域结束，d的生命周期结束
+
+    return 0;
+}
+/*
+输出：
+Creating Derived object:
+Base constructor
+Member constructor
+Derived constructor
+Derived object created.
+Derived destructor
+Member destructor
+Base destructor
+*/
+```
+
+**重点注意**：
+
+- 如果存在多重继承，基类构造函数的调用顺序取决于它们在派生类继承列表中的声明顺序
+- 如果存在虚继承，虚基类的构造函数会优先被调用，并且只调用一次
+
+---
+
+## 引用成员和类的构造
+
+### 引用成员
+
+**特性**：
+
+- 引用成员必须在构造函数的初始化列表中初始化
+- 引用一旦初始化，不能再改变其绑定的对象
+- 不能有引用数组
+- 引用不能为`NULL`，必须始终引用到一个有效的对象
+
+#### **题目 1**：
+
+对类中引用成员的初始化只能通过在构造函数中给出的\_\_\_\_来实现。
