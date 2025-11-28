@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>排序算法学习手册 · index.html</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --border-subtle: rgba(148, 163, 184, 0.3);
+      --border-strong: rgba(15, 23, 42, 0.12);
+      --accent: #007aff;
+      --accent-soft: rgba(0, 122, 255, 0.08);
+      --accent-strong: rgba(0, 122, 255, 0.18);
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --radius-lg: 22px;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --code-bg: #0b1020;
+      --code-border: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 0 0, #ffffff 0, #f5f5f7 55%, #e5e7eb 100%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, -sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 80px;
+    }
+
+    @media (min-width: 768px) {
+      .page {
+        padding: 40px 24px 96px;
+      }
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.14);
+    }
+
+    h1 {
+      margin: 12px 0 0;
+      font-size: 30px;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 36px;
+      }
+    }
+
+    .hero-subtitle {
+      margin-top: 10px;
+      max-width: 640px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .hero-meta {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .pill-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 20px 0 24px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.92);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(18px);
+      overflow-x: auto;
+      display: flex;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+
+    .pill-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill-link {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    }
+
+    .pill-link:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent-strong);
+      color: var(--accent);
+      transform: translateY(-0.5px);
+    }
+
+    .pill-link strong {
+      margin-right: 2px;
+      font-weight: 600;
+    }
+
+    .card {
+      margin-top: 18px;
+      padding: 20px 18px 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(249, 250, 251, 0.96));
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    @media (min-width: 768px) {
+      .card {
+        padding: 22px 22px 20px;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .card-subtitle {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .tag {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(248, 250, 252, 0.9);
+      color: var(--text-muted);
+    }
+
+    .tag-primary {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tag-good {
+      border-color: rgba(34, 197, 94, 0.7);
+      background: rgba(22, 163, 74, 0.06);
+      color: #15803d;
+    }
+
+    .tag-bad {
+      border-color: rgba(239, 68, 68, 0.65);
+      background: rgba(248, 113, 113, 0.08);
+      color: #b91c1c;
+    }
+
+    .card-main {
+      margin-top: 6px;
+      display: grid;
+      gap: 14px;
+    }
+
+    @media (min-width: 900px) {
+      .card-main.two-col {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+        gap: 18px;
+      }
+    }
+
+    h2, h3 {
+      margin: 10px 0 6px;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 14px;
+      color: #111827;
+    }
+
+    p {
+      margin: 4px 0 8px;
+    }
+
+    ul, ol {
+      margin: 4px 0 8px 18px;
+      padding: 0;
+    }
+
+    li + li {
+      margin-top: 2px;
+    }
+
+    .hint {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.03);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hint strong {
+      color: #111827;
+    }
+
+    .code-block {
+      margin-top: 6px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 0 0, #0f172a 0, #020617 65%);
+      border: 1px solid var(--code-border);
+      overflow: hidden;
+      color: #e5e7eb;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.8);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .code-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .code-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      opacity: 0.82;
+    }
+
+    .code-dot.red {
+      background: #f97373;
+    }
+
+    .code-dot.yellow {
+      background: #fbbf24;
+    }
+
+    .code-dot.green {
+      background: #4ade80;
+    }
+
+    pre {
+      margin: 0;
+      padding: 10px 14px 12px;
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      background: transparent;
+      white-space: pre;
+    }
+
+    code {
+      font-family: inherit;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 13px;
+    }
+
+    .meta-item-title {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .meta-item-value {
+      font-weight: 500;
+    }
+
+    .meta-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .overview-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .overview-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .overview-item {
+      padding: 10px 10px 8px;
+      border-radius: 16px;
+      background: rgba(248, 250, 252, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+    }
+
+    .overview-item strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .table-wrapper {
+      margin-top: 10px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(249, 250, 251, 0.98);
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(243, 244, 246, 1);
+      white-space: nowrap;
+    }
+
+    th {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(249, 250, 251, 0.6);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-note {
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            算法与数据结构 · 排序篇
+          </div>
+          <h1>排序算法学习手册</h1>
+          <p class="hero-subtitle">
+            本讲义面向正在学习排序算法的同学，配合课堂演示代码，帮助你从
+            <strong>“故事 → 步骤 → 代码 → 复杂度”</strong>
+            四个角度理解六大经典排序：插入、希尔、堆、选择、快速、归并。
+          </p>
+        </div>
+      </div>
+      <div class="hero-meta">
+        <span>👨‍💻 代码语言：C</span>
+        <span>📦 数据类型：int 数组</span>
+        <span>🧠 建议搭配调试/打印一起食用</span>
+      </div>
+    </header>
+
+    <nav class="pill-nav" aria-label="排序算法导航">
+      <a class="pill-link" href="#overview"><strong>0.</strong> 总览</a>
+      <a class="pill-link" href="#insertion"><strong>1.</strong> 插入排序</a>
+      <a class="pill-link" href="#shell"><strong>2.</strong> 希尔排序</a>
+      <a class="pill-link" href="#heap"><strong>3.</strong> 堆排序</a>
+      <a class="pill-link" href="#selection"><strong>4.</strong> 选择排序</a>
+      <a class="pill-link" href="#quick"><strong>5.</strong> 快速排序</a>
+      <a class="pill-link" href="#merge"><strong>6.</strong> 归并排序</a>
+      <a class="pill-link" href="#compare"><strong>7.</strong> 综合对比</a>
+    </nav>
+
+    <!-- 总览 -->
+    <section id="overview" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">0. 排序问题与六大算法地图</h2>
+          <p class="card-subtitle">
+            排序：给定一组可比较的元素（如 int 数组），将其按从小到大（或从大到小）重新排列。
+          </p>
+        </div>
+      </div>
+      <div class="card-main">
+        <p>
+          在本讲义中，我们会依次学习 6 种<strong>内部排序</strong>（全部在内存中完成）：
+        </p>
+
+        <div class="overview-grid">
+          <div class="overview-item">
+            <strong>插入排序 Insertion Sort</strong>
+            扑克牌摸牌的过程，适合<strong>数据量小</strong>或<strong>基本有序</strong>的情况。
+          </div>
+          <div class="overview-item">
+            <strong>希尔排序 Shell Sort</strong>
+            插入排序的“升级版”，通过<strong>分组 + 缩小 gap</strong>加速。
+          </div>
+          <div class="overview-item">
+            <strong>堆排序 Heap Sort</strong>
+            利用<strong>堆结构</strong>高效地不断选择最大值，时间复杂度稳定为 O(n log n)。
+          </div>
+          <div class="overview-item">
+            <strong>选择排序 Selection Sort</strong>
+            每一趟找出最小/最大元素，逻辑非常直观，这里使用<strong>双向选择</strong>优化。
+          </div>
+          <div class="overview-item">
+            <strong>快速排序 Quick Sort</strong>
+            使用<strong>分治 + 划分（挖坑法）</strong>，平均性能非常优秀，是工程中常用的排序核心。
+          </div>
+          <div class="overview-item">
+            <strong>归并排序 Merge Sort</strong>
+            典型的<strong>分治 + 归并</strong>思路，稳定且时间复杂度始终为 O(n log n)。
+          </div>
+        </div>
+
+        <div class="hint">
+          <strong>建议学习顺序：</strong>先理解思路简单的插入/选择，再到堆、快排、归并。希尔排序可以看作插入排序的“加速技巧”，可以放在插入后一起理解。
+        </div>
+      </div>
+    </section>
+
+    <!-- 插入排序 -->
+    <section id="insertion" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">1. 插入排序（Insertion Sort）</h2>
+          <p class="card-subtitle">
+            核心类比：整理手里的扑克牌 —— 始终保持左边一段是“排好序”的，把新牌插入到合适位置。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：数据量小 / 基本有序</span>
+            <span class="tag tag-good">稳定排序</span>
+            <span class="tag">原地排序 · O(1) 额外空间</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>1.1 思想 & 步骤</h3>
+          <ol>
+            <li><strong>分区：</strong>逻辑上分成两部分：
+              <ul>
+                <li>已排序区间：初始只有 <code>a[0]</code></li>
+                <li>未排序区间：<code>a[1] ... a[n-1]</code></li>
+              </ul>
+            </li>
+            <li><strong>依次摸牌：</strong>外层 <code>for</code> 循环，每次把未排序区间的第一个元素 <code>a[i+1]</code> 当作“新牌”。</li>
+            <li><strong>向左找位置：</strong>用指针 <code>end</code> 从已排序区间的右边开始，向左扫描，比新牌大的就<strong>全部右移一格</strong>。</li>
+            <li><strong>插入落位：</strong>循环结束时，<code>end + 1</code> 就是新牌应该插入的位置。</li>
+          </ol>
+
+          <h3>1.2 为什么它是稳定的？</h3>
+          <p>
+            比较条件是 <code>a[end] &gt; temp</code>，遇到<strong>相等</strong>时不会再移动，因此新元素会插入在“相等元素后面”，相等元素之间的相对顺序不会改变。
+          </p>
+
+          <h3>1.3 时间复杂度</h3>
+          <ul>
+            <li>最坏 / 平均：O(n²) —— 每次插入都要往前挪很多位置。</li>
+            <li>最好：O(n) —— 原数组基本有序，内层 <code>while</code> 几乎不动。</li>
+          </ul>
+
+          <div class="hint">
+            <strong>练习建议：</strong>拿一组短数组（例如 [2, 5, 3, 1]），在草稿纸上手工模拟插入排序的过程，逐步写出每一趟的数组状态。
+          </div>
+        </div>
+
+        <div>
+          <h3>1.4 演示代码</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>insert_sort.c</span>
+            </div>
+            <pre><code>void InsertRange(int a[], int n)
+{
+    for (int i = 0; i &lt; n - 1; i++)
+    {
+        int end = i;
+        int temp = a[end + 1];
+
+        while (end &gt;= 0 &amp;&amp; a[end] &gt; temp)
+        {
+            a[end + 1] = a[end];
+            end--;
+        }
+
+        a[end + 1] = temp;
+        arrPrint(a, n);
+    }
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            其中 <code>arrPrint</code> 为辅助函数，用于打印数组，可以帮助你观察每一趟排序后的结果。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">平均时间</div>
+          <div class="meta-item-value">O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">最好 / 最坏</div>
+          <div class="meta-item-value">O(n) / O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">空间复杂度</div>
+          <div class="meta-item-value">O(1)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">稳定 ✅</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 希尔排序 -->
+    <section id="shell" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">2. 希尔排序（Shell Sort）</h2>
+          <p class="card-subtitle">
+            插入排序的加速版：先用“大步长”让元素离目标位置更近，最后一步再用普通插入排序快速收尾。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：中等规模数据</span>
+            <span class="tag tag-bad">不稳定排序</span>
+            <span class="tag">原地排序 · O(1) 额外空间</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>2.1 思想 & 步骤</h3>
+          <ol>
+            <li><strong>选择步长 gap：</strong>简单版本从 <code>gap = n / 2</code> 开始，每轮缩小一半，直到 <code>gap = 1</code>。</li>
+            <li><strong>按照 gap 分组：</strong>下标间隔为 gap 的元素看成一组，对这组做“插入排序”。代码中是通过
+              <code>for (int i = gap; i &lt; n; i++)</code> 交织完成所有分组的插入过程。
+            </li>
+            <li><strong>不断缩小 gap：</strong>每轮调整后，数组会“更接近有序”，最后当 <code>gap = 1</code> 时，只需一次几乎是最佳情况的插入排序。</li>
+          </ol>
+
+          <h3>2.2 为什么它不稳定？</h3>
+          <p>
+            当 <code>gap &gt; 1</code> 时，元素可能被移动到很远的位置，<strong>跨过</strong>与它相等的元素，例如：
+          </p>
+          <ul>
+            <li>序列：<code>[5_A, 7, 6, 2, 5_B, 4]</code></li>
+            <li>某一轮 <code>gap = 3</code> 后，有可能变成 <code>[2, 5_B, 4, 5_A, 7, 6]</code></li>
+          </ul>
+          <p>可以看到 <code>5_B</code> 被调到了 <code>5_A</code> 前面，相对次序被打乱，因此不稳定。</p>
+
+          <h3>2.3 时间复杂度</h3>
+          <p>
+            和选择的增量序列有关。课堂常用的简单取法（每次 gap /= 2）下，一般可认为平均复杂度约为
+            <strong>O(n<sup>1.3</sup>)</strong> 左右，比 O(n²) 有明显优势。
+          </p>
+        </div>
+
+        <div>
+          <h3>2.4 演示代码</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>shell_sort.c</span>
+            </div>
+            <pre><code>void ShellSort(int a[], int n)
+{
+    for (int gap = n / 2; gap &gt; 0; gap /= 2)
+    {
+        for (int i = gap; i &lt; n; i++)
+        {
+            int temp = a[i];
+            int end = i - gap;
+
+            while (end &gt;= 0 &amp;&amp; a[end] &gt; temp)
+            {
+                a[end + gap] = a[end];
+                end -= gap;
+            }
+
+            a[end + gap] = temp;
+        }
+    }
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            注意这里的 <code>a[end + gap]</code> 和 <code>end -= gap</code>，与插入排序中的 <code>a[end + 1]</code> 和 <code>end--</code> 是“步长版”的对应关系。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">平均时间</div>
+          <div class="meta-item-value">约 O(n<sup>1.3</sup>)（与 gap 选取有关）</div>
+        </div>
+        <div>
+          <div class="meta-item-title">最好 / 最坏</div>
+          <div class="meta-item-value">O(n) / O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">空间复杂度</div>
+          <div class="meta-item-value">O(1)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">不稳定 ❌</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 堆排序 -->
+    <section id="heap" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">3. 堆排序（Heap Sort）</h2>
+          <p class="card-subtitle">
+            使用大顶堆不断“弹出”当前最大值，放到数组末尾，最终得到一个有序序列。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：需要 O(n log n) 且空间紧张</span>
+            <span class="tag tag-bad">不稳定排序</span>
+            <span class="tag">原地排序 · 逻辑基于完全二叉树</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>3.1 思想 & 两个阶段</h3>
+          <ol>
+            <li><strong>阶段一：建堆（大顶堆）</strong>
+              <ul>
+                <li>大顶堆：父节点值 ≥ 两个子节点值。</li>
+                <li>最后一个非叶子结点下标是 <code>(size - 2) / 2</code>。</li>
+                <li>从这个位置开始，往前遍历到 0，对每个结点做一次 <code>AdjustDown</code>，“向下调整成堆”。</li>
+              </ul>
+            </li>
+            <li><strong>阶段二：排序</strong>
+              <ul>
+                <li>此时 <code>a[0]</code> 是当前最大元素。</li>
+                <li>把 <code>a[0]</code> 与末尾 <code>a[end]</code> 交换，最大元素就固定在末尾。</li>
+                <li>缩小堆的有效大小（<code>end--</code>），再对 <code>0</code> 下标做一次 <code>AdjustDown</code>。</li>
+                <li>重复上述过程，直到整个数组有序。</li>
+              </ul>
+            </li>
+          </ol>
+
+          <h3>3.2 AdjustDown（向下调整）逻辑</h3>
+          <ul>
+            <li>当前父节点下标：<code>parent</code>。</li>
+            <li>左子节点：<code>child = 2 * parent + 1</code>。</li>
+            <li>选出左右子节点中较大的一个。</li>
+            <li>如果 <code>a[child] &gt; a[parent]</code>，交换，然后把 <code>parent</code> 移到 <code>child</code> 继续向下比较。</li>
+          </ul>
+
+          <h3>3.3 为什么不稳定？</h3>
+          <p>
+            交换堆顶和末尾元素时，相等元素可能会被跳到另一侧，从而改变原有的相对顺序，因此堆排序不稳定。
+          </p>
+        </div>
+
+        <div>
+          <h3>3.4 演示代码</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>heap_sort.c</span>
+            </div>
+            <pre><code>void AdjustDown(int a[], int size, int root)
+{
+    int parent = root;
+    int child = 2 * parent + 1;
+
+    while (child &lt; size)
+    {
+        if (child + 1 &lt; size &amp;&amp; a[child] &lt; a[child + 1])
+            child++;
+
+        if (a[child] &gt; a[parent])
+        {
+            Swap(a + child, a + parent);
+            parent = child;
+            child = parent * 2 + 1;
+        }
+        else break;
+    }
+}
+
+void HeapSort(int a[], int size)
+{
+    for (int i = (size - 2) / 2; i &gt;= 0; i--)
+        AdjustDown(a, size, i);
+
+    arrPrint(a, size);
+
+    int end = size - 1;
+    while (end &gt; 0)
+    {
+        Swap(&amp;a[0], &amp;a[end]);
+        AdjustDown(a, end, 0);
+        end--;
+    }
+
+    arrPrint(a, size);
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            若采用非递归版本的 <code>AdjustDown</code>，堆排序只使用常数级额外空间，因此空间复杂度为 O(1)。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">时间复杂度</div>
+          <div class="meta-item-value">建堆 O(n) + n 次调整 O(log n) → O(n log n)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">空间复杂度</div>
+          <div class="meta-item-value">O(1)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">不稳定 ❌</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 选择排序 -->
+    <section id="selection" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">4. 选择排序（Selection Sort）</h2>
+          <p class="card-subtitle">
+            每一趟从当前区间中找到最小值和最大值，把它们分别放到左边和右边。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：实现简单，便于教学演示</span>
+            <span class="tag tag-bad">不稳定排序</span>
+            <span class="tag">原地排序 · O(1) 额外空间</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>4.1 思想 & 步骤（双向选择版）</h3>
+          <ol>
+            <li><strong>定义当前未排序区间：</strong>
+              <code>[begin, end]</code>，初始为 <code>[0, size - 1]</code>。
+            </li>
+            <li><strong>一趟扫描找最小和最大：</strong>
+              <ul>
+                <li>用 <code>mini</code> 记录最小值下标，<code>maxi</code> 记录最大值下标。</li>
+                <li>遍历 <code>i = begin ... end</code>，不断更新 <code>mini</code> 和 <code>maxi</code>。</li>
+              </ul>
+            </li>
+            <li><strong>把最小值放到最左边：</strong>交换 <code>a[begin]</code> 和 <code>a[mini]</code>。</li>
+            <li><strong>处理最大值下标的特殊情况：</strong>
+              若 <code>begin == maxi</code>，说明原来的最大值被刚才的交换挪到了 <code>mini</code> 位置，此时需要修正
+              <code>maxi = mini</code>。
+            </li>
+            <li><strong>把最大值放到最右边：</strong>交换 <code>a[end]</code> 和 <code>a[maxi]</code>。</li>
+            <li><strong>收缩区间：</strong><code>begin++</code>，<code>end--</code>，继续下一趟。</li>
+          </ol>
+
+          <h3>4.2 为什么不稳定？</h3>
+          <p>
+            最直观地看单向选择排序：如果数组为 <code>[5_A, 5_B, 2]</code>，第一趟找到最小值 <code>2</code>，会把
+            <code>2</code> 与 <code>5_A</code> 交换，得到 <code>[2, 5_B, 5_A]</code>，相等元素的相对顺序被打乱。
+          </p>
+        </div>
+
+        <div>
+          <h3>4.3 演示代码</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>select_sort.c</span>
+            </div>
+            <pre><code>void SelectSort(int a[], int size)
+{
+    int begin = 0, end = size - 1;
+
+    while (begin &lt; end)
+    {
+        int mini = begin, maxi = begin;
+
+        for (int i = begin; i &lt;= end; i++)
+        {
+            if (a[i] &lt; a[mini]) mini = i;
+            if (a[i] &gt; a[maxi]) maxi = i;
+        }
+
+        Swap(a + begin, a + mini);
+
+        if (begin == maxi)
+            maxi = mini;
+
+        Swap(a + end, a + maxi);
+
+        begin++;
+        end--;
+    }
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            与普通“单向选择”相比，这个版本一趟可以确定两个元素（最小和最大），效率稍高一些。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">平均时间</div>
+          <div class="meta-item-value">O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">最好 / 最坏</div>
+          <div class="meta-item-value">都是 O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">空间复杂度</div>
+          <div class="meta-item-value">O(1)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">不稳定 ❌</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 快速排序 -->
+    <section id="quick" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">5. 快速排序（Quick Sort，挖坑法）</h2>
+          <p class="card-subtitle">
+            分治法经典：选一个基准值，把数组划分为“比它小”和“比它大”两部分，再递归地分别排序。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：大规模数据</span>
+            <span class="tag tag-bad">不稳定排序</span>
+            <span class="tag">平均 O(n log n) · 原地分区</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>5.1 挖坑法分区 PartSort1</h3>
+          <ol>
+            <li><strong>选基准并挖第一个坑：</strong>
+              <ul>
+                <li>选择 <code>a[begin]</code> 为基准 <code>key</code>，记录下标 <code>pivot = begin</code>。</li>
+                <li>可以理解为把 <code>a[pivot]</code> 挖成“坑”，准备让别的元素来填。</li>
+              </ul>
+            </li>
+            <li><strong>右边向左找小的填坑：</strong>
+              从右侧 <code>end</code> 开始，向左移动，找到第一个 <code>&lt; key</code> 的元素，把它放入当前的坑里，同时该位置变成新坑。
+            </li>
+            <li><strong>左边向右找大的填坑：</strong>
+              从左侧 <code>begin</code> 开始，向右移动，找到第一个 <code>&gt; key</code> 的元素，把它放入当前的坑里，那个位置又成为新坑。
+            </li>
+            <li><strong>左右交替，直到相遇：</strong>
+              当 <code>begin</code> 与 <code>end</code> 相遇时，说明坑已经移动到了基准的最终位置。</li>
+            <li><strong>把 key 填回最后的坑：</strong>
+              将基准 <code>key</code> 放入当前的坑里，返回该下标作为分割位置。</li>
+          </ol>
+
+          <h3>5.2 QuickSort 递归过程</h3>
+          <ul>
+            <li>递归出口：区间长度 ≤ 1 时，直接返回。</li>
+            <li>调用 <code>PartSort1</code> 得到基准位置 <code>keyindex</code>。</li>
+            <li>递归排序左右两半：<code>[left, keyindex - 1]</code> 和 <code>[keyindex + 1, right]</code>。</li>
+          </ul>
+
+          <h3>5.3 复杂度与优化</h3>
+          <ul>
+            <li>平均时间复杂度：O(n log n)，在随机数据上表现很好。</li>
+            <li>最坏情况：O(n²)，例如数组本身已经有序，而我们每次都选择最左端作为基准。</li>
+            <li>常见优化：随机化基准位置、三数取中、当区间很小时改用插入排序等。</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>5.4 演示代码（挖坑法）</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>quick_sort.c</span>
+            </div>
+            <pre><code>int PartSort1(int a[], int left, int right)
+{
+    int begin = left, end = right;
+    int pivot = begin;
+    int key = a[pivot];
+
+    while (begin &lt; end)
+    {
+        while (begin &lt; end &amp;&amp; a[end] &gt;= key) end--;
+        a[pivot] = a[end];
+        pivot = end;
+
+        while (begin &lt; end &amp;&amp; a[begin] &lt;= key) begin++;
+        a[pivot] = a[begin];
+        pivot = begin;
+    }
+
+    a[pivot] = key;
+    return pivot;
+}
+
+void QuickSort(int a[], int left, int right)
+{
+    if (left &gt;= right) return;
+
+    int keyindex = PartSort1(a, left, right);
+
+    QuickSort(a, left, keyindex - 1);
+    QuickSort(a, keyindex + 1, right);
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            这里的 <code>begin</code> / <code>end</code> 始终包围着“坑”的位置，理解“坑”的移动有助于你跟踪整个分区过程。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">平均时间</div>
+          <div class="meta-item-value">O(n log n)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">最坏时间</div>
+          <div class="meta-item-value">O(n²)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">平均空间</div>
+          <div class="meta-item-value">O(log n)（递归栈）</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">不稳定 ❌</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 归并排序 -->
+    <section id="merge" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">6. 归并排序（Merge Sort）</h2>
+          <p class="card-subtitle">
+            先把数组不断二分，直到每一段都“天然有序”（长度为 1），再一层一层地合并成更长的有序序列。
+          </p>
+          <div class="tag-row">
+            <span class="tag tag-primary">适合：大数据量，对稳定性有要求</span>
+            <span class="tag tag-good">稳定排序</span>
+            <span class="tag">需要额外 O(n) 空间</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-main two-col">
+        <div>
+          <h3>6.1 思想 & 步骤</h3>
+          <ol>
+            <li><strong>分（Divide）：</strong>
+              <ul>
+                <li>不断二分区间：<code>[left, right]</code> → <code>[left, mid]</code> 和 <code>[mid+1, right]</code>。</li>
+                <li>当 <code>left &gt;= right</code> 时，区间长度 ≤ 1，自然有序，递归返回。</li>
+              </ul>
+            </li>
+            <li><strong>合（Conquer &amp; Merge）：</strong>
+              <ul>
+                <li>此时左右两段 <code>[left, mid]</code> 和 <code>[mid+1, right]</code> 已经各自有序。</li>
+                <li>使用两个指针 <code>begin1</code> / <code>begin2</code> 同步往右走，比较两侧当前元素，把较小者拷贝到 <code>temp</code> 中。</li>
+                <li>一侧用完后，把另一侧剩余元素整体拷贝到 <code>temp</code>。</li>
+                <li>最后把 <code>temp[left...right]</code> 复制回原数组的对应区间。</li>
+              </ul>
+            </li>
+          </ol>
+
+          <h3>6.2 为什么是稳定的？</h3>
+          <p>
+            在合并时，当 <code>a[begin1] == a[begin2]</code>，代码中选择的是：
+          </p>
+          <pre><code>if (a[begin1] &lt;= a[begin2]) ...</code></pre>
+          <p>
+            也就是<strong>优先拷贝左边的元素</strong>，因此左侧的“老元素”会排在右侧“新元素”之前，保持相等元素的相对顺序。
+          </p>
+        </div>
+
+        <div>
+          <h3>6.3 演示代码</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <span class="code-dot red"></span>
+                <span class="code-dot yellow"></span>
+                <span class="code-dot green"></span>
+              </div>
+              <span>merge_sort.c</span>
+            </div>
+            <pre><code>void _MergeSort(int a[], int left, int right, int *temp)
+{
+    if (left &gt;= right) return;
+
+    int mid = (left + right) &gt;&gt; 1;
+
+    _MergeSort(a, left, mid, temp);
+    _MergeSort(a, mid + 1, right, temp);
+
+    int begin1 = left, end1 = mid;
+    int begin2 = mid + 1, end2 = right;
+    int index = left;
+
+    while (begin1 &lt;= end1 &amp;&amp; begin2 &lt;= end2)
+    {
+        if (a[begin1] &lt;= a[begin2])
+            temp[index++] = a[begin1++];
+        else
+            temp[index++] = a[begin2++];
+    }
+
+    while (begin1 &lt;= end1) temp[index++] = a[begin1++];
+    while (begin2 &lt;= end2) temp[index++] = a[begin2++];
+
+    for (int i = left; i &lt;= right; i++)
+        a[i] = temp[i];
+}
+
+void MergeSort(int a[], int n)
+{
+    int* temp = (int*)malloc(sizeof(int) * n);
+    _MergeSort(a, 0, n - 1, temp);
+    free(temp);
+}</code></pre>
+          </div>
+          <p class="meta-note">
+            为了节省空间，<code>temp</code> 只申请一次，并在递归过程中反复复用。整体需要 O(n) 的额外空间。
+          </p>
+        </div>
+      </div>
+
+      <div class="meta-list">
+        <div>
+          <div class="meta-item-title">时间复杂度</div>
+          <div class="meta-item-value">始终为 O(n log n)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">空间复杂度</div>
+          <div class="meta-item-value">O(n)</div>
+        </div>
+        <div>
+          <div class="meta-item-title">稳定性</div>
+          <div class="meta-item-value">稳定 ✅</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 综合对比 -->
+    <section id="compare" class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">7. 六大排序算法综合对比</h2>
+          <p class="card-subtitle">
+            这一节帮助你从“复杂度、空间、稳定性、是否原地”几个维度整体把握它们的优缺点。
+          </p>
+        </div>
+      </div>
+      <div class="card-main">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>排序算法</th>
+                <th>平均时间</th>
+                <th>最坏时间</th>
+                <th>最好时间</th>
+                <th>空间复杂度</th>
+                <th>稳定性</th>
+                <th>是否原地</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>插入排序</td>
+                <td>O(n²)</td>
+                <td>O(n²)</td>
+                <td>O(n)</td>
+                <td>O(1)</td>
+                <td>稳定 ✅</td>
+                <td>是 ✅</td>
+              </tr>
+              <tr>
+                <td>希尔排序</td>
+                <td>约 O(n<sup>1.3</sup>)</td>
+                <td>O(n²)</td>
+                <td>O(n)</td>
+                <td>O(1)</td>
+                <td>不稳定 ❌</td>
+                <td>是 ✅</td>
+              </tr>
+              <tr>
+                <td>堆排序</td>
+                <td>O(n log n)</td>
+                <td>O(n log n)</td>
+                <td>O(n log n)</td>
+                <td>O(1)</td>
+                <td>不稳定 ❌</td>
+                <td>是 ✅</td>
+              </tr>
+              <tr>
+                <td>选择排序</td>
+                <td>O(n²)</td>
+                <td>O(n²)</td>
+                <td>O(n²)</td>
+                <td>O(1)</td>
+                <td>不稳定 ❌</td>
+                <td>是 ✅</td>
+              </tr>
+              <tr>
+                <td>快速排序</td>
+                <td>O(n log n)</td>
+                <td>O(n²)</td>
+                <td>O(n log n)</td>
+                <td>O(log n)（递归栈）</td>
+                <td>不稳定 ❌</td>
+                <td>是 ✅</td>
+              </tr>
+              <tr>
+                <td>归并排序</td>
+                <td>O(n log n)</td>
+                <td>O(n log n)</td>
+                <td>O(n log n)</td>
+                <td>O(n)</td>
+                <td>稳定 ✅</td>
+                <td>否 ❌</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table-note">
+            ✅ <strong>稳定排序</strong>：相等元素排序前后的相对次序不变。<br />
+            ✅ <strong>原地排序</strong>：只使用常数级额外空间（不算递归栈）。
+          </div>
+        </div>
+
+        <div class="footer-note">
+          ✅ 建议你在 IDE 中逐行调试这些代码，观察数组在每一趟排序后的变化。<br />
+          ✅ 真正掌握一个排序算法的标志：你能不用看代码、用自己的话讲清楚它的思想和每一步在干什么。
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

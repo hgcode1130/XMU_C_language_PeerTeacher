@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序算法交互式演示</title>
+    <!-- 使用 Tailwind CSS 以实现苹果风格的简洁设计 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 使用 Inter 字体，这是 Apple 平台上常见的字体风格 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 自定义 Apple 风格的字体和基础样式 */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 滚动条美化（在 Webkit 浏览器中）*/
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+
+        /* 动画条的样式 */
+        .visualizer-bar {
+            display: inline-block;
+            background-color: #60a5fa; /* 默认蓝色 */
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            margin: 0 1px;
+            transition: all 0.2s ease-out;
+            vertical-align: bottom;
+        }
+
+        /* 动画条的不同状态 */
+        .visualizer-bar[data-state="compare"] {
+            background-color: #ef4444; /* 比较 - 红色 */
+        }
+        .visualizer-bar[data-state="current"] {
+            background-color: #f59e0b; /* 当前 - 琥珀色 */
+        }
+        .visualizer-bar[data-state="swap"] {
+            background-color: #8b5cf6; /* 交换 - 紫色 */
+        }
+        .visualizer-bar[data-state="sorted"] {
+            background-color: #22c55e; /* 已排序 - 绿色 */
+        }
+        .visualizer-bar[data-state="pivot"] {
+            background-color: #ec4899; /* 基准 - 粉色 */
+        }
+        
+        /* C 代码高亮（简单模拟）*/
+        pre code.language-c {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            background-color: #1a1b26; /* 类似 dark mode 的背景 */
+            color: #c0caf5;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            display: block;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        pre code.language-c .comment { color: #565f89; }
+        pre code.language-c .keyword { color: #bb9af7; }
+        pre code.language-c .type { color: #0db9d7; }
+        pre code.language-c .function { color: #7aa2f7; }
+        pre code.language-c .number { color: #ff9e64; }
+        pre code.language-c .string { color: #9ece6a; }
+        pre code.language-c .preprocessor { color: #f7768e; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- 粘性导航栏，用于在算法间快速跳转 -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-center space-x-4 md:space-x-8 py-3 overflow-x-auto whitespace-nowrap">
+                <a href="#insertion" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">插入排序</a>
+                <a href="#shell" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">希尔排序</a>
+                <a href="#heap" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">堆排序</a>
+                <a href="#selection" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">选择排序</a>
+                <a href="#quick" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">快速排序</a>
+                <a href="#merge" class="py-2 px-3 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">归并排序</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="max-w-6xl mx-auto p-4 md:p-10">
+
+        <!-- 标题 -->
+        <header class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
+                排序算法总结
+            </h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                本讲义总结了常见的六大内部排序算法，通过交互式动画直观地展示它们的核心思想、性能特点与局限。
+            </p>
+        </header>
+
+        <!-- 算法区域 -->
+        <div class="space-y-20">
+
+            <!-- 1. 插入排序 -->
+            <section id="insertion" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">插入排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            通过维护一个“已排序区间”，不断将未排序区间的元素插入到适当位置。逻辑类似于整理扑克牌。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n²)</p>
+                            <p><strong>最坏时间：</strong> O(n²)</p>
+                            <p><strong>最好时间：</strong> O(n)</p>
+                            <p><strong>空间复杂度：</strong> O(1)</p>
+                            <p><strong>稳定性：</strong> <span class="text-green-600 font-medium">✔ 稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-4">动画演示：插入排序</h3>
+                            <!-- 可视化容器 -->
+                            <div id="vis-insertion" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px">
+                                <!-- JS 将在此处生成条形图 -->
+                            </div>
+                            <!-- 控制区 -->
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('insertion')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('insertion')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('insertion')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <!-- 代表性例子：演示最好/最坏情况 -->
+                                <div class="flex items-center gap-2">
+                                    <label for="select-insertion" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-insertion" onchange="resetArray('insertion')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                        <option value="nearly-sorted">基本有序 (最好情况)</option>
+                                        <option value="reversed">逆序 (最坏情况)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="keyword">void</span> <span class="function">InsertRange</span>(<span class="type">int</span> a[], <span class="type">int</span> n)
+{
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i++)
+    {
+        <span class="type">int</span> end = i;
+        <span class="type">int</span> temp = a[end + <span class="number">1</span>];
+
+        <span class="comment">// 动画：temp 为 'current'，a[end] 为 'compare'</span>
+        <span class="keyword">while</span> (end &gt;= <span class="number">0</span> && a[end] &gt; temp)
+        {
+            a[end + <span class="number">1</span>] = a[end]; <span class="comment">// 动画：元素右移</span>
+            end--;
+        }
+
+        a[end + <span class="number">1</span>] = temp; <span class="comment">// 动画：插入元素</span>
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 希尔排序 -->
+            <section id="shell" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">希尔排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            基于插入排序，通过“分组+缩小 gap”方式加速排序效率。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n^1.3)</p>
+                            <p><strong>最坏时间：</strong> O(n²)</p>
+                            <p><strong>最好时间：</strong> O(n)</p>
+                            <p><strong>空间复杂度：</strong> O(1)</p>
+                            <p><strong>稳定性：</strong> <span class="text-red-600 font-medium">✘ 不稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-2">动画演示：希尔排序</h3>
+                            <p class="text-sm text-gray-600 mb-4">观察不同 `gap` 下的“分组插入排序”。</p>
+                            <div id="vis-shell" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('shell')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('shell')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('shell')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="select-shell" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-shell" onchange="resetArray('shell')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                        <option value="reversed">逆序</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="keyword">void</span> <span class="function">ShellSort</span>(<span class="type">int</span> a[], <span class="type">int</span> n)
+{
+    <span class="comment">// 动画：gap 会不断变化</span>
+    <span class="keyword">for</span> (<span class="type">int</span> gap = n / <span class="number">2</span>; gap &gt; <span class="number">0</span>; gap /= <span class="number">2</span>)
+    {
+        <span class="keyword">for</span> (<span class="type">int</span> i = gap; i &lt; n; i++)
+        {
+            <span class="type">int</span> temp = a[i];
+            <span class="type">int</span> end = i - gap;
+
+            <span class="comment">// 动画：同组元素(a[i], a[end])进行比较</span>
+            <span class="keyword">while</span> (end &gt;= <span class="number">0</span> && a[end] &gt; temp)
+            {
+                a[end + gap] = a[end];
+                end -= gap;
+            }
+            a[end + gap] = temp;
+        }
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 堆排序 -->
+            <section id="heap" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">堆排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            基于大顶堆 / 小顶堆 实现的选择型排序。每次把堆顶（最大值）放到末尾。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n log n)</p>
+                            <p><strong>最坏时间：</strong> O(n log n)</p>
+                            <p><strong>最好时间：</strong> O(n log n)</p>
+                            <p><strong>空间复杂度：</strong> O(1)</p>
+                            <p><strong>稳定性：</strong> <span class="text-red-600 font-medium">✘ 不稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-2">动画演示：堆排序</h3>
+                            <p class="text-sm text-gray-600 mb-4">先观察“建堆”（向下调整），再观察“排序”（交换堆顶与末尾）。</p>
+                            <div id="vis-heap" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('heap')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('heap')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('heap')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="select-heap" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-heap" onchange="resetArray('heap')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="keyword">void</span> <span class="function">AdjustDown</span>(<span class="type">int</span> a[], <span class="type">int</span> size, <span class="type">int</span> root)
+{
+    <span class="type">int</span> parent = root;
+    <span class="type">int</span> child = <span class="number">2</span> * parent + <span class="number">1</span>; <span class="comment">// 动画：比较 parent 和 child</span>
+    <span class="keyword">while</span> (child &lt; size)
+    {
+        <span class="keyword">if</span> (child + <span class="number">1</span> &lt; size && a[child] &lt; a[child + <span class="number">1</span>])
+            child++; <span class="comment">// 选出较大的孩子</span>
+
+        <span class="keyword">if</span> (a[child] &gt; a[parent])
+        {
+            Swap(a + child, a + parent); <span class="comment">// 动画：交换</span>
+            parent = child;
+            child = parent * <span class="number">2</span> + <span class="number">1</span>;
+        }
+        <span class="keyword">else</span> <span class="keyword">break</span>;
+    }
+}
+<span class="keyword">void</span> <span class="function">HeapSort</span>(<span class="type">int</span> a[], <span class="type">int</span> size)
+{
+    <span class="comment">// 1. 建堆</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = (size - <span class="number">2</span>) / <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--)
+        AdjustDown(a, size, i);
+
+    <span class="comment">// 2. 排序（交换堆顶和末尾）</span>
+    <span class="type">int</span> end = size - <span class="number">1</span>;
+    <span class="keyword">while</span> (end > <span class="number">0</span>)
+    {
+        Swap(&a[<span class="number">0</span>], &a[end]); <span class="comment">// 动画：交换，a[end] 变为 'sorted'</span>
+        AdjustDown(a, end, <span class="number">0</span>); <span class="comment">// 动画：重新调整堆</span>
+        end--;
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 4. 选择排序 -->
+            <section id="selection" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">选择排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            每次从未排序区间选择最小（或最大）元素放到正确位置。（讲义中是优化版，同时找最小和最大）。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n²)</p>
+                            <p><strong>最坏时间：</strong> O(n²)</p>
+                            <p><strong>最好时间：</strong> O(n²)</p>
+                            <p><strong>空间复杂度：</strong> O(1)</p>
+                            <p><strong>稳定性：</strong> <span class="text-red-600 font-medium">✘ 不稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-2">动画演示：选择排序（优化版）</h3>
+                            <p class="text-sm text-gray-600 mb-4">观察 `mini` 和 `maxi` 指针如何在未排序区间移动。</p>
+                            <div id="vis-selection" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('selection')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('selection')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('selection')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="select-selection" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-selection" onchange="resetArray('selection')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                        <option value="reversed">逆序</option>
+                                        <option value="nearly-sorted">基本有序</option>
+                                        <option value="special-case">特殊情况 (maxi 在 begin)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="keyword">void</span> <span class="function">SelectSort</span>(<span class="type">int</span> a[], <span class="type">int</span> size)
+{
+    <span class="type">int</span> begin = <span class="number">0</span>, end = size - <span class="number">1</span>;
+    <span class="keyword">while</span> (begin &lt; end)
+    {
+        <type>int</type> mini = begin, maxi = begin;
+        <span class="comment">// 动画：i 遍历，mini 和 maxi 跟踪 min/max</span>
+        <span class="keyword">for</span> (<span class="type">int</span> i = begin; i &lt;= end; i++)
+        {
+            <span class="keyword">if</span> (a[i] &lt; a[mini]) mini = i;
+            <span class="keyword">if</span> (a[i] &gt; a[maxi]) maxi = i;
+        }
+
+        Swap(a + begin, a + mini); <span class="comment">// 动画：交换 mini 到 begin</span>
+        
+        <span class="comment">// 关键：如果 maxi 在 begin 处，它刚被换走了</span>
+        <span class="keyword">if</span> (begin == maxi)
+            maxi = mini;
+
+        Swap(a + end, a + maxi); <span class="comment">// 动画：交换 maxi 到 end</span>
+        begin++;
+        end--;
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 快速排序 -->
+            <section id="quick" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">快速排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            通过选取基准元素（Pivot），把数组划分为左右两个区间并递归处理。（演示为挖坑法）。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n log n)</p>
+                            <p><strong>最坏时间：</strong> O(n²)</p>
+                            <p><strong>最好时间：</strong> O(n log n)</p>
+                            <p><strong>空间复杂度：</strong> O(log n)</p>
+                            <p><strong>稳定性：</strong> <span class="text-red-600 font-medium">✘ 不稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-2">动画演示：快速排序（挖坑法）</h3>
+                            <p class="text-sm text-gray-600 mb-4">观察 `pivot`（坑）的位置如何移动，以及 `begin` 和 `end` 指针的相遇。</p>
+                            <div id="vis-quick" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('quick')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('quick')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('quick')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="select-quick" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-quick" onchange="resetArray('quick')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                        <option value="sorted">已排序 (最坏情况)</option>
+                                        <option value="reversed">逆序</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="type">int</span> <span class="function">PartSort1</span>(<span class="type">int</span> a[], <span class="type">int</span> left, <span class="type">int</span> right)
+{
+    <span class="type">int</span> begin = left, end = right;
+    <span class="type">int</span> pivot = begin; <span class="comment">// 动画：pivot 为 'pivot' 状态</span>
+    <span class="type">int</span> key = a[pivot];
+
+    <span class="keyword">while</span> (begin &lt; end)
+    {
+        <span class="comment">// 动画：end 指针 ('compare') 向左找小</span>
+        <span class="keyword">while</span> (begin &lt; end && a[end] &gt;= key) end--;
+        a[pivot] = a[end]; <span class="comment">// 动画：填坑，pivot 移到 end</span>
+        pivot = end;
+
+        <span class="comment">// 动画：begin 指针 ('compare') 向右找大</span>
+        <span class="keyword">while</span> (begin &lt; end && a[begin] &lt;= key) begin++;
+        a[pivot] = a[begin]; <span class="comment">// 动画：填坑，pivot 移到 begin</span>
+        pivot = begin;
+    }
+
+    a[pivot] = key; <span class="comment">// 动画：key 归位</span>
+    <span class="keyword">return</span> pivot;
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 归并排序 -->
+            <section id="merge" class="scroll-mt-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-3">归并排序</h2>
+                        <p class="text-gray-600 mb-4">
+                            通过“分治 + 合并”实现稳定、高效的排序。
+                        </p>
+                        <div class="text-sm space-y-2">
+                            <p><strong>平均时间：</strong> O(n log n)</p>
+                            <p><strong>最坏时间：</strong> O(n log n)</p>
+                            <p><strong>最好时间：</strong> O(n log n)</p>
+                            <p><strong>空间复杂度：</strong> O(n)</p>
+                            <p><strong>稳定性：</strong> <span class="text-green-600 font-medium">✔ 稳定</span></p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <!-- 演示区 -->
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 md:p-6">
+                            <h3 class="text-lg font-semibold mb-2">动画演示：归并排序</h3>
+                            <p class="text-sm text-gray-600 mb-4">观察递归“分解”到底层，然后“合并”两个有序子数组的过程。</p>
+                            <div id="vis-merge" class="visualizer-container h-60 bg-gray-100 rounded-lg p-2 flex items-end justify-center space-x-px"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-4 mt-4">
+                                <div class="flex items-center gap-4">
+                                    <button onclick="startSort('merge')" class="control-btn control-btn-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                                        自动排序
+                                    </button>
+                                    <!-- NEW: "Next Step" button -->
+                                    <button onclick="nextStep('merge')" class="control-btn control-btn-step bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition disabled:opacity-50">
+                                        下一步
+                                    </button>
+                                    <button onclick="resetArray('merge')" class="control-btn control-btn-reset bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition disabled:opacity-50">
+                                        重置
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="select-merge" class="text-sm font-medium">数据形态:</label>
+                                    <select id="select-merge" onchange="resetArray('merge')" class="control-select rounded-lg border-gray-300 shadow-sm text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="random">随机</option>
+                                        <option value="reversed">逆序</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- 代码展示 -->
+                            <div class="mt-6">
+                                <h4 class="text-md font-semibold mb-2">参考代码 (C)</h4>
+                                <pre><code class="language-c"><span class="keyword">void</span> <span class="function">_MergeSort</span>(<span class="type">int</span> a[], <span class="type">int</span> left, <span class="type">int</span> right, <span class="type">int</span> *temp)
+{
+    <span class="keyword">if</span> (left &gt;= right) <span class="keyword">return</span>;
+    <span class="type">int</span> mid = (left + right) &gt;&gt; <span class="number">1</span>;
+
+    _MergeSort(a, left, mid, temp);
+    _MergeSort(a, mid + <span class="number">1</span>, right, temp);
+
+    <span class="type">int</span> begin1 = left, end1 = mid;
+    <span class="type">int</span> begin2 = mid + <span class="number">1</span>, end2 = right;
+    <span class="type">int</span> index = left;
+
+    <span class="comment">// 动画：比较 begin1 和 begin2</span>
+    <span class="keyword">while</span> (begin1 &lt;= end1 && begin2 &lt;= end2)
+    {
+        <span class="keyword">if</span> (a[begin1] &lt;= a[begin2])
+            temp[index++] = a[begin1++];
+        <span class="keyword">else</span>
+            temp[index++] = a[begin2++];
+    }
+    <span class="keyword">while</span> (begin1 &lt;= end1) temp[index++] = a[begin1++];
+    <span class="keyword">while</span> (begin2 &lt;= end2) temp[index++] = a[begin2++];
+
+    <span class="comment">// 动画：将 temp 拷回 a (合并完成)</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = left; i &lt;= right; i++)
+        a[i] = temp[i];
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- 7. 总结对比表 -->
+        <section id="summary" class="scroll-mt-20 mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">排序算法复杂度对比</h2>
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-max text-sm text-left text-gray-700">
+                        <thead class="bg-gray-100 text-xs text-gray-700 uppercase tracking-wider">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold">排序算法</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">平均时间</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">最坏时间</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">最好时间</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">空间复杂度</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">稳定性</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">是否原地</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">插入排序</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4 text-blue-600 font-medium">O(n)</td>
+                                <td class="px-6 py-4">O(1)</td>
+                                <td class="px-6 py-4 text-green-600">✔ 稳定</td>
+                                <td class="px-6 py-4">✔</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">希尔排序</td>
+                                <td class="px-6 py-4">O(n^1.3)</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4">O(n)</td>
+                                <td class="px-6 py-4">O(1)</td>
+                                <td class="px-6 py-4 text-red-600">✘ 不稳定</td>
+                                <td class="px-6 py-4">✔</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">堆排序</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(1)</td>
+                                <td class="px-6 py-4 text-red-600">✘ 不稳定</td>
+                                <td class="px-6 py-4">✔</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">选择排序</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4">O(n²)</td>
+                                <td class="px-6 py-4">O(1)</td>
+                                <td class="px-6 py-4 text-red-600">✘ 不稳定</td>
+                                <td class="px-6 py-4">✔</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">快速排序</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4 text-red-600 font-medium">O(n²)</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(log n)</td>
+                                <td class="px-6 py-4 text-red-600">✘ 不稳定</td>
+                                <td class="px-6 py-4">✔</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">归并排序</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4">O(n log n)</td>
+                                <td class="px-6 py-4 text-blue-600 font-medium">O(n)</td>
+                                <td class="px-6 py-4 text-green-600">✔ 稳定</td>
+                                <td class="px-6 py-4">✘</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="text-center py-10 mt-10 border-t border-gray-200">
+        <p class="text-sm text-gray-500">交互式演示由 Gemini 生成</p>
+    </footer>
+
+    <!-- 
+    ================================================================
+    JavaScript 动画逻辑
+    ================================================================
+    -->
+    <script>
+        const ARRAY_SIZE = 40; // 数组元素数量
+        let animationSpeed = 50; // 动画速度 (ms)
+        let isSorting = false; // 全局锁，防止重复点击
+        
+        // 存储每个算法的当前数据
+        const visualizerState = {
+            insertion: { data: [], generator: null, isDone: false },
+            shell: { data: [], generator: null, isDone: false },
+            heap: { data: [], generator: null, isDone: false },
+            selection: { data: [], generator: null, isDone: false },
+            quick: { data: [], generator: null, isDone: false },
+            merge: { data: [], generator: null, isDone: false },
+        };
+
+        // 辅助函数：休眠
+        function sleep() {
+            return new Promise(resolve => setTimeout(resolve, animationSpeed));
+        }
+
+        // 辅助函数：禁用/启用所有控件
+        function setAllControlsDisabled(disabled) {
+            isSorting = disabled;
+            document.querySelectorAll('.control-btn, .control-select').forEach(el => {
+                el.disabled = disabled;
+            });
+            
+            // Re-enable controls for non-finished algos if not auto-sorting
+            if (!disabled) {
+                Object.keys(visualizerState).forEach(algoName => {
+                    const state = visualizerState[algoName];
+                    const section = document.getElementById(algoName);
+                    if (!section) return;
+
+                    section.querySelectorAll('.control-btn-auto').forEach(el => el.disabled = state.isDone);
+                    section.querySelectorAll('.control-btn-step').forEach(el => el.disabled = state.isDone);
+                    section.querySelectorAll('.control-select').forEach(el => el.disabled = false);
+                    section.querySelectorAll('.control-btn-reset').forEach(el => el.disabled = false);
+                });
+            }
+        }
+        
+        // 辅助函数：交换数组中的两个值
+        function swap(arr, i, j) {
+            const temp = arr[i].value;
+            arr[i].value = arr[j].value;
+            arr[j].value = temp;
+        }
+        
+        // 辅助函数：根据状态获取颜色
+        function getColor(state) {
+            switch (state) {
+                case 'compare': return '#ef4444'; // red-500
+                case 'current': return '#f59e0b'; // amber-500
+                case 'swap': return '#8b5cf6'; // violet-500
+                case 'sorted': return '#22c55e'; // green-500
+                case 'pivot': return '#ec4899'; // pink-500
+                default: return '#60a5fa'; // blue-400
+            }
+        }
+
+        // --------------------------------
+        // 数组生成
+        // --------------------------------
+        function generateArray(type = 'random', size = ARRAY_SIZE) {
+            const arr = [];
+            switch (type) {
+                case 'random':
+                    for (let i = 0; i < size; i++) {
+                        arr.push(Math.floor(Math.random() * 90) + 10);
+                    }
+                    break;
+                case 'nearly-sorted':
+                    for (let i = 0; i < size; i++) {
+                        arr.push(Math.floor((i / size) * 90) + 10);
+                    }
+                    // 随机交换几次
+                    for (let k = 0; k < Math.floor(size / 10); k++) {
+                        const i = Math.floor(Math.random() * size);
+                        const j = Math.floor(Math.random() * size);
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                    }
+                    break;
+                case 'reversed':
+                    for (let i = 0; i < size; i++) {
+                        arr.push(Math.floor(((size - i) / size) * 90) + 10);
+                    }
+                    break;
+                case 'sorted':
+                     for (let i = 0; i < size; i++) {
+                        arr.push(Math.floor((i / size) * 90) + 10);
+                    }
+                    break;
+                case 'special-case': // 用于选择排序：最大值在开头
+                    for (let i = 0; i < size; i++) {
+                        arr.push(Math.floor((i / size) * 80) + 10);
+                    }
+                    arr[0] = 100; // 把最大值放开头
+                    break;
+            }
+            return arr;
+        }
+        
+        // --------------------------------
+        // 渲染
+        // --------------------------------
+        function renderVisualizer(algoName) {
+            const container = document.getElementById(`vis-${algoName}`);
+            const data = visualizerState[algoName].data;
+            if (!container || !data || data.length === 0) return;
+            
+            container.innerHTML = ''; // 清空
+            const containerWidth = container.clientWidth;
+            if (containerWidth === 0) return; // Skip rendering if container not visible
+            
+            const barWidth = Math.max(1, Math.floor(containerWidth / data.length) - 2);
+
+            for (let i = 0; i < data.length; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                bar.style.height = `${data[i].value}%`;
+                bar.style.width = `${barWidth}px`;
+                bar.style.backgroundColor = getColor(data[i].state);
+                bar.dataset.value = data[i].value; // 调试用
+                container.appendChild(bar);
+            }
+        }
+
+        // 渲染并休眠 (动画的核心)
+        // REMOVED renderAndSleep
+
+        // --------------------------------
+        // 控制器
+        // --------------------------------
+        window.resetArray = function(algoName) {
+            if (isSorting) return;
+            
+            // MODIFIED: Reset state
+            visualizerState[algoName].generator = null;
+            visualizerState[algoName].isDone = false;
+            
+            const select = document.getElementById(`select-${algoName}`);
+            const type = select.value;
+            const rawData = generateArray(type);
+            
+            // 将原始数据包装为带状态的对象
+            visualizerState[algoName].data = rawData.map(value => ({
+                value: value,
+                state: 'default' // 'default', 'compare', 'swap', 'sorted'
+            }));
+            
+            renderVisualizer(algoName);
+            
+            // MODIFIED: Re-enable controls for this specific algo
+            const section = document.getElementById(algoName);
+            if (section) {
+                section.querySelectorAll('.control-btn, .control-select').forEach(el => {
+                    el.disabled = false;
+                });
+            }
+        }
+
+        window.startSort = async function(algoName) {
+            if (isSorting) return;
+            setAllControlsDisabled(true); // Disable all controls everywhere
+
+            let state = visualizerState[algoName];
+            
+            // Clear states if we are starting fresh (not resuming)
+            if (!state.generator) {
+                state.data.forEach(item => item.state = 'default');
+            }
+
+            if (!state.generator) {
+                state.generator = createSortGenerator(algoName);
+            }
+
+            let result = { done: false };
+            while (!result.done) {
+                result = await state.generator.next();
+                await sleep(); // Delay for auto-sort
+                if (isSorting === false) break; // Check if user hit reset (via console?)
+            }
+            
+            state.isDone = true;
+            state.generator = null; // Clear generator
+            markAsSorted(algoName);
+            
+            setAllControlsDisabled(false); // Re-enable controls
+        }
+        
+        // NEW: nextStep
+        window.nextStep = async function(algoName) {
+            if (isSorting) return; // Don't step if auto-sorting
+            
+            // Disable controls for this algo during the step
+            const section = document.getElementById(algoName);
+            if (!section) return;
+            section.querySelectorAll('.control-btn, .control-select').forEach(el => el.disabled = true);
+            
+            let state = visualizerState[algoName];
+
+            // Clear states if we are starting fresh
+            if (!state.generator) {
+                state.data.forEach(item => item.state = 'default');
+            }
+            
+            if (!state.generator) {
+                state.generator = createSortGenerator(algoName);
+            }
+
+            const result = await state.generator.next();
+
+            if (result.done) {
+                state.isDone = true;
+                state.generator = null; // Clear generator
+                markAsSorted(algoName);
+                // Re-enable *only* reset
+                section.querySelectorAll('.control-btn-reset').forEach(el => el.disabled = false);
+            } else {
+                // Re-enable controls
+                section.querySelectorAll('.control-btn, .control-select').forEach(el => el.disabled = false);
+            }
+        }
+
+        // NEW: createSortGenerator
+        function createSortGenerator(algoName) {
+            const state = visualizerState[algoName];
+            const data = state.data;
+            
+            switch (algoName) {
+                case 'insertion':
+                    return animateInsertionSort(data, algoName);
+                case 'shell':
+                    return animateShellSort(data, algoName);
+                case 'heap':
+                    return animateHeapSort(data, algoName);
+                case 'selection':
+                    return animateSelectionSort(data, algoName);
+                case 'quick':
+                    return animateQuickSort(data, 0, data.length - 1, algoName);
+                case 'merge':
+                    const temp = new Array(data.length);
+                    return animateMergeSort(data, 0, data.length - 1, temp, algoName);
+                default:
+                    return null;
+            }
+        }
+
+        // NEW: markAsSorted
+        function markAsSorted(algoName) {
+            const data = visualizerState[algoName].data;
+            data.forEach(item => item.state = 'sorted');
+            renderVisualizer(algoName);
+        }
+
+
+        // 页面加载时初始化所有数组
+        window.onload = () => {
+            Object.keys(visualizerState).forEach(algoName => {
+                resetArray(algoName);
+            });
+            
+            // 确保渲染正确
+            setTimeout(() => {
+                 Object.keys(visualizerState).forEach(algoName => {
+                    renderVisualizer(algoName);
+                });
+            }, 100);
+        };
+        
+        // 窗口大小改变时重新渲染
+        window.onresize = () => {
+            if (isSorting) return;
+            Object.keys(visualizerState).forEach(algoName => {
+                renderVisualizer(algoName);
+            });
+        };
+
+        // --------------------------------
+        // 算法动画实现 (Generators)
+        // --------------------------------
+
+        // 1. 插入排序 (对应 C 代码逻辑)
+        async function* animateInsertionSort(data, algoName) {
+            for (let i = 0; i < data.length - 1; i++) {
+                let end = i;
+                let temp = data[end + 1].value;
+                
+                data[end + 1].state = 'current'; // 标记待插入的元素
+                renderVisualizer(algoName); yield;
+
+                while (end >= 0 && data[end].value > temp) {
+                    data[end].state = 'compare'; // 比较
+                    renderVisualizer(algoName); yield;
+                    
+                    data[end + 1].value = data[end].value; // 元素右移
+                    data[end].state = 'default';
+                    data[end + 1].state = 'default';
+                    
+                    end--;
+                    
+                    if(end >= 0) data[end].state = 'compare';
+                    data[end + 1].state = 'current'; // "坑"的位置
+                    renderVisualizer(algoName); yield;
+                }
+                
+                data[end + 1].value = temp; // 插入
+                
+                // 清理本轮状态
+                data.forEach((item, idx) => {
+                    if (idx <= i + 1) item.state = 'sorted'; // 已排序区
+                });
+                renderVisualizer(algoName); yield;
+            }
+        }
+
+        // 2. 希尔排序
+        async function* animateShellSort(data, algoName) {
+            const n = data.length;
+            for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+                // 突出显示当前 gap 分组
+                for (let g = 0; g < gap; g++) {
+                    for (let i = g; i < n; i += gap) {
+                        data[i].state = 'current'; // 标记同组
+                    }
+                    renderVisualizer(algoName); yield;
+                    for (let i = g; i < n; i += gap) {
+                        data[i].state = 'default'; // 清除
+                    }
+                }
+                
+                // 内部使用插入排序
+                for (let i = gap; i < n; i++) {
+                    let tempVal = data[i].value;
+                    let end = i - gap;
+                    
+                    data[i].state = 'current';
+                    
+                    while (end >= 0 && data[end].value > tempVal) {
+                        data[end].state = 'compare';
+                        renderVisualizer(algoName); yield;
+                        
+                        data[end + gap].value = data[end].value;
+                        data[end].state = 'default';
+                        data[end + gap].state = 'default';
+                        
+                        end -= gap;
+                        
+                        if(end >= 0) data[end].state = 'compare';
+                        data[i].state = 'current'; // 保持 current
+                        renderVisualizer(algoName); yield;
+                    }
+                    data[end + gap].value = tempVal;
+                    
+                    data.forEach(item => {
+                        if(item.state === 'current' || item.state === 'compare') {
+                            item.state = 'default';
+                        }
+                    });
+                    renderVisualizer(algoName); yield;
+                }
+            }
+        }
+
+        // 3. 堆排序
+        async function* animateAdjustDown(data, size, root, algoName) {
+            let parent = root;
+            let child = 2 * parent + 1;
+            while (child < size) {
+                data[parent].state = 'pivot'; // 标记父节点
+                if (child + 1 < size) {
+                    data[child].state = 'compare';
+                    data[child + 1].state = 'compare';
+                    renderVisualizer(algoName); yield;
+                    if (data[child].value < data[child + 1].value) {
+                        child++; // 选出较大的孩子
+                    }
+                    data[child + (child % 2 === 0 ? -1 : 1)].state = 'default'; // 清除未选中的
+                } else {
+                     data[child].state = 'compare';
+                     renderVisualizer(algoName); yield;
+                }
+
+                if (data[child].value > data[parent].value) {
+                    swap(data, child, parent);
+                    data[child].state = 'default';
+                    data[parent].state = 'default';
+                    renderVisualizer(algoName); yield;
+                    
+                    parent = child;
+                    child = parent * 2 + 1;
+                } else {
+                    data[child].state = 'default';
+                    data[parent].state = 'default';
+                    renderVisualizer(algoName); yield;
+                    break;
+                }
+            }
+            // 清理可能残留的状态
+            data.forEach(item => {
+                if(item.state === 'pivot' || item.state === 'compare') {
+                    item.state = 'default';
+                }
+            });
+        }
+        
+        async function* animateHeapSort(data, algoName) {
+            const size = data.length;
+            // 1. 建堆
+            for (let i = Math.floor((size - 2) / 2); i >= 0; i--) {
+                yield* animateAdjustDown(data, size, i, algoName);
+            }
+            renderVisualizer(algoName); yield;
+            
+            // 2. 排序
+            let end = size - 1;
+            while (end > 0) {
+                data[0].state = 'swap';
+                data[end].state = 'swap';
+                renderVisualizer(algoName); yield;
+                
+                swap(data, 0, end);
+                
+                data[0].state = 'default';
+                data[end].state = 'sorted'; // 放到末尾的已排好
+                renderVisualizer(algoName); yield;
+                
+                yield* animateAdjustDown(data, end, 0, algoName);
+                end--;
+            }
+            data[0].state = 'sorted';
+        }
+        
+        // 4. 选择排序
+        async function* animateSelectionSort(data, algoName) {
+            let begin = 0, end = data.length - 1;
+            while (begin < end) {
+                let mini = begin, maxi = begin;
+                
+                // 标记范围
+                for(let i=begin; i<=end; i++) data[i].state = 'current';
+                data[mini].state = 'pivot'; // 假设的 min
+                data[maxi].state = 'pivot'; // 假设的 max
+                
+                for (let i = begin; i <= end; i++) {
+                    data[i].state = 'compare'; // 当前扫描
+                    renderVisualizer(algoName); yield;
+                    
+                    if (data[i].value < data[mini].value) {
+                        data[mini].state = 'current'; // 取消旧的 min
+                        mini = i;
+                        data[mini].state = 'pivot'; // 标记新的 min
+                    }
+                    if (data[i].value > data[maxi].value) {
+                        data[maxi].state = 'current'; // 取消旧的 max
+                        maxi = i;
+                        data[maxi].state = 'pivot'; // 标记新的 max
+                    }
+                    renderVisualizer(algoName); yield;
+                    if(data[i].state !== 'pivot') data[i].state = 'current'; // 恢复
+                }
+                
+                // 清理范围标记
+                for(let i=begin; i<=end; i++) data[i].state = 'default';
+
+                // 交换
+                data[begin].state = 'swap';
+                data[mini].state = 'swap';
+                renderVisualizer(algoName); yield;
+                swap(data, begin, mini);
+                data[begin].state = 'sorted'; // 'begin' 位置排好了
+                data[mini].state = 'default';
+
+                // C 代码中的关键点：如果 maxi 在 begin 处
+                if (begin === maxi) {
+                    maxi = mini; // 它被换到了 mini 的位置
+                }
+                
+                data[end].state = 'swap';
+                data[maxi].state = 'swap';
+                renderVisualizer(algoName); yield;
+                swap(data, end, maxi);
+                data[end].state = 'sorted'; // 'end' 位置排好了
+                data[maxi].state = 'default';
+
+                begin++;
+                end--;
+            }
+            if(begin === end) data[begin].state = 'sorted'; // 处理最后一个元素
+        }
+
+        // 5. 快速排序
+        async function* animatePartition(data, left, right, algoName) {
+            let begin = left, end = right;
+            let pivot = begin;
+            let key = data[pivot].value;
+            
+            data[pivot].state = 'pivot'; // 标记基准
+            for(let i=left; i<=right; i++) if(i !== pivot) data[i].state = 'current';
+            renderVisualizer(algoName); yield;
+
+            while (begin < end) {
+                // end 向左找小
+                data[end].state = 'compare';
+                while (begin < end && data[end].value >= key) {
+                    renderVisualizer(algoName); yield;
+                    data[end].state = 'current';
+                    end--;
+                    data[end].state = 'compare';
+                }
+                data[end].state = 'swap';
+                renderVisualizer(algoName); yield;
+                data[pivot].value = data[end].value; // 填坑
+                data[pivot].state = 'current';
+                pivot = end;
+                data[pivot].state = 'pivot'; // 新的坑
+                
+                // begin 向右找大
+                data[begin].state = 'compare';
+                while (begin < end && data[begin].value <= key) {
+                    renderVisualizer(algoName); yield;
+                    data[begin].state = 'current';
+                    begin++;
+                    data[begin].state = 'compare';
+                }
+                data[begin].state = 'swap';
+                renderVisualizer(algoName); yield;
+                data[pivot].value = data[begin].value; // 填坑
+                data[pivot].state = 'current';
+                pivot = begin;
+                data[pivot].state = 'pivot'; // 新的坑
+            }
+
+            data[pivot].value = key; // key 归位
+            data[pivot].state = 'sorted'; // pivot 已排好
+            
+            for(let i=left; i<=right; i++) if(i !== pivot) data[i].state = 'default';
+            renderVisualizer(algoName); yield;
+            
+            return pivot;
+        }
+
+        async function* animateQuickSort(data, left, right, algoName) {
+            if (left >= right) {
+                if(left === right) data[left].state = 'sorted';
+                return;
+            }
+            
+            // FIX: Manual delegation to get the return value from the generator
+            const partitionGenerator = animatePartition(data, left, right, algoName);
+            let result = { done: false };
+            let keyindex = -1;
+            
+            while (!result.done) {
+                // We don't need to await here because 'next' is not async
+                result = partitionGenerator.next(); 
+                
+                if (result.value !== undefined && result.done) {
+                    keyindex = result.value; // Get the returned pivot
+                }
+                if (!result.done) {
+                    yield; // Re-yield the steps from the partition
+                }
+            }
+            
+            if (keyindex === -1) {
+                // This can happen if the partition finishes instantly (e.g. 1 element)
+                // Let's re-check the logic.
+                // The loop should be:
+                // result = await partitionGenerator.next();
+                // My mistake. It is an async generator.
+                
+                // Let's retry the fix block
+                // Reset
+                result = { done: false };
+                keyindex = -1;
+                const partGen = animatePartition(data, left, right, algoName);
+
+                while (!result.done) {
+                    result = await partGen.next(); // Await is needed
+                    if (result.value !== undefined && result.done) {
+                        keyindex = result.value; // Get the returned pivot
+                    }
+                    if (!result.done) {
+                        yield; // Re-yield the steps from the partition
+                    }
+                }
+                
+                if (keyindex === -1) {
+                     // This should not happen if partition returns pivot
+                    console.error("Partition failed to return pivot");
+                    return; // Stop if something went wrong
+                }
+            }
+
+            // 递归
+            yield* animateQuickSort(data, left, keyindex - 1, algoName);
+            yield* animateQuickSort(data, keyindex + 1, right, algoName);
+        }
+
+        // 6. 归并排序
+        async function* animateMergeSort(data, left, right, temp, algoName) {
+            if (left >= right) return;
+            
+            let mid = Math.floor((left + right) / 2);
+            
+            yield* animateMergeSort(data, left, mid, temp, algoName);
+            yield* animateMergeSort(data, mid + 1, right, temp, algoName);
+            
+            // --- 合并 ---
+            let begin1 = left, end1 = mid;
+            let begin2 = mid + 1, end2 = right;
+            let index = left;
+            
+            // 标记要合并的两个区域
+            for(let i=left; i<=right; i++) data[i].state = 'current';
+            
+            while (begin1 <= end1 && begin2 <= end2) {
+                data[begin1].state = 'compare';
+                data[begin2].state = 'compare';
+                renderVisualizer(algoName); yield;
+                
+                if (data[begin1].value <= data[begin2].value) {
+                    temp[index++] = data[begin1].value;
+                    data[begin1].state = 'current';
+                    begin1++;
+                } else {
+                    temp[index++] = data[begin2].value;
+                    data[begin2].state = 'current';
+                    begin2++;
+                }
+            }
+            while (begin1 <= end1) {
+                data[begin1].state = 'compare';
+                renderVisualizer(algoName); yield;
+                temp[index++] = data[begin1].value;
+                data[begin1].state = 'current';
+                begin1++;
+            }
+            while (begin2 <= end2) {
+                data[begin2].state = 'compare';
+                renderVisualizer(algoName); yield;
+                temp[index++] = data[begin2].value;
+                data[begin2].state = 'current';
+                begin2++;
+            }
+            
+            // 将 temp 拷回 data (动画)
+            for (let i = left; i <= right; i++) {
+                data[i].value = temp[i];
+                data[i].state = 'swap'; // 用 swap 颜色表示拷回
+            }
+            renderVisualizer(algoName); yield;
+            // 清理状态
+            for (let i = left; i <= right; i++) {
+                data[i].state = (left === 0 && right === data.length - 1) ? 'sorted' : 'default';
+            }
+            renderVisualizer(algoName); yield;
+        }
+
+    </script>
+</body>
+</html>
